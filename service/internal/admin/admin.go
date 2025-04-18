@@ -41,6 +41,7 @@ func (c *AdminRouter) RouteRegister(g *gin.Engine, r *gin.RouterGroup) {
 		userRouter.POST("/update", user.Update)
 		userRouter.POST("/delete", user.Delete)
 		userRouter.GET("/permissions", user.Permission)
+		userRouter.GET("/refresh/token", user.RefreshToken)
 	}
 	// 权限设置
 	permission := NewPermission(c)

@@ -228,6 +228,8 @@ func (this *user) Permission(ctx *gin.Context) {
 		Data: plist,
 	})
 }
+
+// 获取验证码
 func (this *user) Captcha(ctx *gin.Context) {
 	svg, code := utils.GenerateSVG(80, 40)
 	tu, _ := uuid.NewUUID()
@@ -238,4 +240,19 @@ func (this *user) Captcha(ctx *gin.Context) {
 	ctx.Header("X-Captcha-ID", tu.String())
 	// 返回验证码
 	ctx.Data(http.StatusOK, "image/svg+xml", svg)
+}
+
+// 刷新token
+func (this *user) RefreshToken(ctx *gin.Context) {
+	token, _ := utils.GenerateToken(map[string]any{
+		"user_id":  ctx.GetFloat64("user_id"),
+		"username": ctx.GetString("username"),
+		"role_id":  ctx.GetFloat64("role_id"),
+	}, this.config)
+	ctx.JSON(http.StatusOK, router.Response{
+		Code: 200,
+		Data: gin.H{
+			"accessToken": token,
+		},
+	})
 }
