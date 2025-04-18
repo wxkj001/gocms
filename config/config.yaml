@@ -1,0 +1,96 @@
+jwt:
+  secret: wxkj001
+  expire: 360000000
+  issuer: wxkj001
+web:
+  host: 0.0.0.0
+  port: 3000
+  tls:  #启用tls
+    enable: false
+    servername:
+    cert:
+    key:
+  encrypt:
+    enable: false
+    privateKey: |
+      MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCSr3zw4o59EYxa
+      5VhjdO0un4j0JxyCf2iA0U6e3HTUMjSE19gH0EwJwZ9H1Eg2nfn//g3l3ECn/EUM
+      MYgL/yuq5qm7sL1fdYdS+ZOCZErLTyRf74roZetrq/LFlYryv0mEWc2Y7BF/nwz9
+      G+jdd+TiKq5WtypdCrWeHl1wW5c0zje37jniL94NdXLsPapETQ6tHRl8HJjGOXUC
+      2H8G6lwHSnrlZmo838M32825uBO1vy/4wqbT//15WMcXAd6fJJdzp9v1O/TAgzVP
+      3R14/YelvX+UP1BwqiXPcc9JXz4pITTkDluXsDt5KXMc0suYXGwc4iJRkVojSYPw
+      tjN7OVEbAgMBAAECggEAYVSsVLIf1gE03oNbuPK3Br65AziIhFbCIue/gU3K/5oo
+      mxUVtWmTas3dQK4tFICSiDgtRJ53EIAl2Mds/HjeotHXQkEuBw9XMcmFBXpC3tCu
+      1DGAPGCUa6d2uYBW6GfhAj8MWzIZElOZLMG+LGYHq8KiV8vGAmK+zCJd4dYEaPaD
+      baD8crtTt20HbPg25e3T7W/F/oSU9E4DMkj+H3v/ap6gX4sBm5otz1BEhMzRYt+L
+      0yNbpYU+dYYQm/Yv55SDgfhYBYN6WsMNTIX+7bSZFLHVHtvFlGDC7EtenEd54nRl
+      YYuA53WMJ7rntpFxlNP26MEaeiv1pu4YyMzmKm3mwQKBgQDF2Dz9wKKUF47AlGJX
+      BKyCdOEb7d+5s6G1XqAS0kR2V0iVCiPzsy+je7xAyiieMFbFxwh+gun2Q2V0LoK2
+      aN6+7DpsP0Us61RDyab1x3zDR3Vsh/utEUmISDNnskdNdp4RblwVBJb/mpj35A0U
+      SAKFVnXTPzpG7AVFVPnIbgCIawKBgQC9zYjWki6x2VtY9KnpMDj8Paz2486fpzWF
+      mCmt6brffaZxsbOOb271eDL6fFVFdjzS3zt0McMg04R+zRgZ016cmNSHWofiCkB5
+      dNxn4u7BFmiDOcDZ34LDhzrzFukXRN88JmTZDE7p0kEg5T3PG3os32hAW8h+fpUl
+      Db6dPGlGEQKBgQC4wtc6lnJ94H4k5K3t2+SKtEIhhgT/9HxY13Sf/xOGfL7AyMaI
+      aNddUkmdK+3AxR3T96q8EuARZiFR3bmeRdN28z8gJfohF+gKokA0mUavS4WihF+J
+      4XINPngbKAeklNjLKIf/7Nhi/epK3gNE5HbONM82J37yCqpldBUMk4YV3wKBgGqf
+      m89uL20ZfYdrakflHx4UR6YqM1jcxeRWppNcSe5i163m9cd+MgcTjw/H6N8snN6Z
+      KP0NN2CpcjUJYhCf/PZbpIilAtCoka+pRmfVw+oUfIG7X+sE9KCCx0roA+led0mD
+      CAQmNe6EfrHMFfzSor+ygQ4mgWsOERrPrdUGqt0BAoGABIv09UQgb0SwV/eEkvpP
+      RjBWJynkDuZ3i5pzIKk3dfG1abYvSiuRvYwUJ7v2tYnaZpku716/AAGGKVWz3Ix0
+      Smu/82MpJzQ0yc4Bz7F1UDKDbRst7LtbiUtycMS5/GJj78itMKzOTxsIyl7Io2hL
+      eIQSjJl94CkSD8BTiyn1OYY=
+    publicKey: |
+      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkq988OKOfRGMWuVYY3Tt
+      Lp+I9Cccgn9ogNFOntx01DI0hNfYB9BMCcGfR9RINp35//4N5dxAp/xFDDGIC/8r
+      quapu7C9X3WHUvmTgmRKy08kX++K6GXra6vyxZWK8r9JhFnNmOwRf58M/Rvo3Xfk
+      4iquVrcqXQq1nh5dcFuXNM43t+454i/eDXVy7D2qRE0OrR0ZfByYxjl1Ath/Bupc
+      B0p65WZqPN/DN9vNubgTtb8v+MKm0//9eVjHFwHenySXc6fb9Tv0wIM1T90deP2H
+      pb1/lD9QcKolz3HPSV8+KSE05A5bl7A7eSlzHNLLmFxsHOIiUZFaI0mD8LYzezlR
+      GwIDAQAB
+log:
+  level: debug # debug, info, warn, error
+  writers: file,stdout
+  filename: ./logs/app.log
+  max_size: 100 # megabytes
+  max_age: 30 # days
+  max_backups: 10
+  compress: true
+plugin:
+  path: ./public/plugin
+  enable: true
+db:
+  driver: mysql
+  tablePrefix:
+  host: 127.0.0.1
+  port: 3306
+  user: root
+  dbname: gocms
+  password: wxkj001
+cache:
+  driver: redis
+  host: 127.0.0.1
+  port: 6379
+  password: 
+  db: 0
+  maxIdle: 10
+  maxActive: 100
+  idleTimeout: 300
+
+casbin:
+  model: |
+    [request_definition]
+    r = sub, obj, act
+
+    [policy_definition]
+    p = sub, obj, act
+
+    [role_definition]
+    g = _, _
+
+    [policy_effect]
+    e = some(where (p.eft == allow))
+
+    [matchers]
+    m = g(r.sub, p.sub) && keyMatch2(r.obj, p.obj) && r.act == p.act
+    
+  
