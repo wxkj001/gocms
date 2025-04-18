@@ -59,6 +59,7 @@ func (c *AdminRouter) RouteRegister(g *gin.Engine, r *gin.RouterGroup) {
 	role := NewRole(c)
 	{
 		roleRouter := admin.Group("/role", c.middle.Jwt.AdminJWT())
+		roleRouter.GET("/tree", role.Tree)
 		roleRouter.GET("/list", role.List)
 		roleRouter.POST("/", role.Add)
 		roleRouter.PATCH("/:id", role.Update)

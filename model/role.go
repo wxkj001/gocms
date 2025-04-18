@@ -35,6 +35,23 @@ func (*RolePerGroup) TableName() string {
 }
 
 // 获取列表
+func (m *RoleModel) GetListAll() ([]RolePerGroup, error) {
+	list := make([]RolePerGroup, 0)
+
+	db1 := m.db.NewSession()
+	err := db1.Find(&list)
+	for k, v := range list {
+		var perIds []int64
+		err := m.db.Table("rule").Cols("v1").Where("ptype = ? and v0=? and v2=?", "p", v.ID, "role").Find(&perIds)
+		if err != nil {
+			return nil, err
+		}
+		list[k].PermissionIds = perIds
+	}
+	return list, err
+}
+
+// 获取列表
 func (m *RoleModel) GetList(pageSize, pageNo int, name string) ([]RolePerGroup, int64, error) {
 	list := make([]RolePerGroup, 0)
 	db := m.db.NewSession()

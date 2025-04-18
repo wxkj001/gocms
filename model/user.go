@@ -10,7 +10,7 @@ type User struct {
 	ID         int64     `json:"id" xorm:"id autoincr"`
 	Username   string    `json:"username" xorm:"username"`
 	Password   string    `json:"password" xorm:"password"`
-	Enable     int8      `json:"enable" xorm:"enable"`
+	Enable     bool      `json:"enable" xorm:"enable tinyint(1)"`
 	Createtime time.Time `json:"createTime" xorm:"createTime"`
 	Updatetime time.Time `json:"updateTime" xorm:"updateTime"`
 }
@@ -33,14 +33,34 @@ type UserGroup struct {
 func (UserGroup) TableName() string {
 	return "user"
 }
+
+type UserProfileGroup struct {
+	User    `xorm:"extends"`
+	Profile `xorm:"extends"`
+	Role    []RuleRoleGroup `xorm:"-" json:"roles"`
+}
+
+func (UserProfileGroup) TableName() string {
+	return "user"
+}
 func NewUser(db *xorm.Engine) *UserModel {
 	return &UserModel{db: db}
 }
 
 // 获取用户列表
-func (m *UserModel) GetUserList() ([]User, error) {
-	var users []User
-	err := m.db.Find(&users)
+func (m *UserModel) GetUserList() ([]UserProfileGroup, error) {
+	var users []UserProfileGroup
+	err := m.db.Join("LEFT", "profile", "user.id=profile.userId").Find(&users)
+	for k, v := range users {
+		roles := []RuleRoleGroup{}
+		err = m.db.Where("ptype =? and v0=?", "g", v.User.ID).
+			Join("INNER", "role", "role.id=rule.v1").
+			Find(&roles)
+		if err != nil {
+			return nil, err
+		}
+		users[k].Role = roles
+	}
 	return users, err
 }
 

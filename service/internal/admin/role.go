@@ -17,6 +17,22 @@ func NewRole(admin *AdminRouter) *role {
 	return &role{AdminRouter: admin}
 }
 
+// tree
+func (a *role) Tree(ctx *gin.Context) {
+	list, err := a.model.RoleModel.GetListAll()
+	if err != nil {
+		ctx.JSON(200, router.Response{
+			Code:    500,
+			Message: err.Error(),
+			Data:    nil,
+		})
+	}
+	ctx.JSON(200, router.Response{
+		Code: 200,
+		Data: list,
+	})
+}
+
 // 列表
 func (a *role) List(ctx *gin.Context) {
 	pageNoReq := ctx.DefaultQuery("pageNo", "1")
