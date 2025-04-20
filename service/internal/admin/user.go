@@ -82,10 +82,15 @@ func (this *user) Login(ctx *gin.Context) {
 		})
 		return
 	}
+	super := 0
+	if userRes.User.ID == 1 {
+		super = 1
+	}
 	token, _ := utils.GenerateToken(map[string]any{
 		"user_id":  user.User.ID,
 		"username": user.User.Username,
 		"role_id":  userRes.CurrentRole.ID,
+		"is_super": super,
 	}, this.config)
 	ctx.JSON(http.StatusOK, router.Response{
 		Code: 200,
@@ -129,7 +134,7 @@ func (this *user) Update(ctx *gin.Context) {
 		return
 	}
 	userReq.Updatetime = time.Now()
-	err := this.model.UserModel.UpdateUser(userReq.ID, &userReq)
+	err := this.model.UserModel.UpdateUser(int64(userReq.ID), &userReq)
 	if err != nil {
 		ctx.JSON(http.StatusOK, router.Response{
 			Code:    500,
@@ -145,8 +150,12 @@ func (this *user) Update(ctx *gin.Context) {
 
 // 增加用户
 func (this *user) Add(ctx *gin.Context) {
-	userReq := model.UserGroup{}
-	if err := ctx.ShouldBindBodyWith(&userReq, binding.JSON); err != nil {
+	type UserReq struct {
+		*model.UserGroup
+		RoleIds []int64 `json:"roleIds"`
+	}
+	userReq := &UserReq{}
+	if err := ctx.ShouldBindBodyWith(userReq, binding.JSON); err != nil {
 		ctx.JSON(http.StatusOK, router.Response{
 			Code:    500,
 			Message: err.Error(),
@@ -156,13 +165,19 @@ func (this *user) Add(ctx *gin.Context) {
 	userReq.Createtime = time.Now()
 	userReq.Updatetime = time.Now()
 	userReq.Password = fmt.Sprintf("%x", md5.Sum([]byte(userReq.Password)))
-	err := this.model.UserModel.CreateUser(&userReq)
+	err := this.model.UserModel.CreateUser(userReq.UserGroup)
 	if err != nil {
 		ctx.JSON(http.StatusOK, router.Response{
 			Code:    500,
 			Message: err.Error(),
 		})
+		return
 	}
+	for _, v := range userReq.RoleIds {
+		this.e.AddGroupingPolicy(utils.ToString(userReq.User.ID), utils.ToString(v))
+	}
+	this.e.LoadPolicy()
+	this.e.SavePolicy()
 	ctx.JSON(http.StatusOK, router.Response{
 		Code: 200,
 		Data: userReq,
@@ -187,6 +202,10 @@ func (this *user) Delete(ctx *gin.Context) {
 		return
 	}
 	err = this.model.UserModel.DeleteUser(int64(iid))
+	this.model.RuleModel.Delete(&model.Rule{
+		Ptype: "g",
+		V0:    utils.ToString(iid),
+	})
 	if err != nil {
 		ctx.JSON(http.StatusOK, router.Response{
 			Code:    500,
@@ -194,6 +213,9 @@ func (this *user) Delete(ctx *gin.Context) {
 		})
 		return
 	}
+	ctx.JSON(http.StatusOK, router.Response{
+		Code: 200,
+	})
 }
 
 // 获取用户列表
@@ -215,6 +237,10 @@ func (this *user) List(ctx *gin.Context) {
 // 用户权限
 func (this *user) Permission(ctx *gin.Context) {
 	id := ctx.GetFloat64("role_id")
+	isSuper := ctx.GetInt("is_super")
+	if isSuper == 1 {
+		id = -1
+	}
 	plist, err := this.model.PermissionModel.GetPermissionsByRoleID(int64(id))
 	if err != nil {
 		ctx.JSON(http.StatusOK, router.Response{
@@ -234,7 +260,14 @@ func (this *user) Captcha(ctx *gin.Context) {
 	svg, code := utils.GenerateSVG(80, 40)
 	tu, _ := uuid.NewUUID()
 	// 将验证码存储到 Redis
-	this.cache.Set(ctx, "captcha-"+tu.String(), code, time.Minute*5)
+	err := this.cache.Set(ctx, "captcha-"+tu.String(), code, time.Minute*5)
+	if err != nil {
+		ctx.JSON(http.StatusOK, router.Response{
+			Code:    500,
+			Message: err.Error(),
+		})
+		return
+	}
 	// 设置 Content-Type 为 "image/svg+xml"
 	ctx.Header("Content-Type", "image/svg+xml; charset=utf-8")
 	ctx.Header("X-Captcha-ID", tu.String())
@@ -254,5 +287,41 @@ func (this *user) RefreshToken(ctx *gin.Context) {
 		Data: gin.H{
 			"accessToken": token,
 		},
+	})
+}
+
+// ResetPassword
+func (this *user) ResetPassword(ctx *gin.Context) {
+	id := ctx.Param("id")
+	iid, err := strconv.Atoi(id)
+	if err != nil {
+		ctx.JSON(http.StatusOK, router.Response{
+			Code:    500,
+			Message: err.Error(),
+		})
+		return
+	}
+	userReq := model.UserProfileGroup{}
+	if err := ctx.ShouldBindBodyWith(&userReq, binding.JSON); err != nil {
+		ctx.JSON(http.StatusOK, router.Response{
+			Code:    500,
+			Message: err.Error(),
+		})
+		return
+	}
+	user := model.User{
+		ID:       int64(iid),
+		Password: fmt.Sprintf("%x", md5.Sum([]byte(userReq.Password))),
+	}
+	err = this.model.UserModel.UpdateUser(int64(iid), &user)
+	if err != nil {
+		ctx.JSON(http.StatusOK, router.Response{
+			Code:    500,
+			Message: err.Error(),
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, router.Response{
+		Code: 200,
 	})
 }

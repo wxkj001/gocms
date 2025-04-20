@@ -89,6 +89,8 @@ export function useCrud({ name, initForm = {}, doCreate, doDelete, doUpdate, ref
 
   /** 删除 */
   function handleDelete(id, confirmOptions) {
+    console.log(id);
+    
     if (!id && id !== 0)
       return
     const d = $dialog.warning({

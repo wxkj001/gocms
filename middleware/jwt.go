@@ -47,6 +47,7 @@ func (l *JwtMiddleware) AdminJWT() gin.HandlerFunc {
 		for k, v := range claims {
 			c.Set(k, v)
 		}
+
 		if userId, ok := (claims)["user_id"]; ok {
 			b, err := l.e.Enforce(utils.ToString(userId), c.Request.URL.Path, "admin")
 			if err != nil {

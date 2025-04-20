@@ -37,9 +37,10 @@ func (c *AdminRouter) RouteRegister(g *gin.Engine, r *gin.RouterGroup) {
 		userRouter := admin.Group("/user", c.middle.Jwt.AdminJWT())
 		userRouter.GET("/detail", user.Detail)
 		userRouter.GET("/list", user.List)
-		userRouter.POST("/create", user.Add)
+		userRouter.POST("/", user.Add)
 		userRouter.POST("/update", user.Update)
-		userRouter.POST("/delete", user.Delete)
+		userRouter.DELETE("/:id", user.Delete)
+		userRouter.PATCH("/password/reset/:id", user.ResetPassword)
 		userRouter.GET("/permissions", user.Permission)
 		userRouter.GET("/refresh/token", user.RefreshToken)
 	}

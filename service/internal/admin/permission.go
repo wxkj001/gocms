@@ -19,6 +19,10 @@ func NewPermission(admin *AdminRouter) *permission {
 }
 func (p *permission) List(ctx *gin.Context) {
 	id := ctx.GetFloat64("role_id")
+	isSuper := ctx.GetInt("is_super")
+	if isSuper == 1 {
+		id = -1
+	}
 	permissions, err := p.model.PermissionModel.GetPermissionsByRoleID(int64(id))
 	if err != nil {
 		ctx.JSON(200, router.Response{
@@ -36,6 +40,10 @@ func (p *permission) List(ctx *gin.Context) {
 // tree
 func (p *permission) Tree(ctx *gin.Context) {
 	id := ctx.GetFloat64("role_id")
+	isSuper := int(ctx.GetFloat64("is_super"))
+	if isSuper == 1 {
+		id = -1
+	}
 	permissions, err := p.model.PermissionModel.GetPermissionsTreeAll(int64(id))
 	if err != nil {
 		ctx.JSON(200, router.Response{
