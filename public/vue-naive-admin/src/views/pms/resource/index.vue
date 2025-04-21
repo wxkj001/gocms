@@ -83,6 +83,24 @@
             :get-data="api.getButtons"
             :query-items="{ parentId: currentMenu.id }"
           />
+          <div>
+            <div class="mt-32 flex justify-between">
+              <h3 class="mb-12">
+                接口(API)
+              </h3>
+              <NButton size="small" type="primary" @click="handleAddApi">
+                <i class="i-fe:plus mr-4 text-14" />
+                新增
+              </NButton>
+            </div>
+            <MeCrud
+              ref="$tableApi"
+              :columns="apisColumns"
+              :scroll-x="-1"
+              :get-data="api.getApis"
+              :query-items="{ parentId: currentMenu.id }"
+            />
+          </div>
         </template>
         <n-empty v-else class="h-450 f-c-c" size="large" description="请选择菜单查看详情" />
       </div>
@@ -101,10 +119,15 @@ import ResAddOrEdit from './components/ResAddOrEdit.vue'
 const treeData = ref([])
 const treeLoading = ref(false)
 const $table = ref(null)
+const $tableApi = ref(null)
 const currentMenu = ref(null)
 async function initData(data) {
   if (data?.type === 'BUTTON') {
     $table.value.handleSearch()
+    return
+  }
+  if (data?.type === 'API') {
+    $tableApi.value.handleSearch()
     return
   }
   treeLoading.value = true
@@ -188,13 +211,76 @@ const btnsColumns = [
     },
   },
 ]
+const apisColumns = [
+  { title: '名称', key: 'name' },
+  { title: '编码', key: 'code' },
+  { title: '路由', key: 'path' },
+  {
+    title: '状态',
+    key: 'enable',
+    render: row =>
+      h(
+        NSwitch,
+        {
+          size: 'small',
+          rubberBand: false,
+          value: row.enable,
+          loading: !!row.enableLoading,
+          onUpdateValue: () => handleApiEnable(row),
+        },
+        {
+          checked: () => '启用',
+          unchecked: () => '停用',
+        },
+      ),
+  },
+  {
+    title: '操作',
+    key: 'actions',
+    width: 320,
+    align: 'right',
+    fixed: 'right',
+    render(row) {
+      return [
+        h(
+          NButton,
+          {
+            size: 'small',
+            type: 'primary',
+            style: 'margin-left: 12px;',
+            onClick: () => handleEditApi(row),
+          },
+          {
+            default: () => '编辑',
+            icon: () => h('i', { class: 'i-material-symbols:edit-outline text-14' }),
+          },
+        ),
 
+        h(
+          NButton,
+          {
+            size: 'small',
+            type: 'error',
+            style: 'margin-left: 12px;',
+            onClick: () => handleDeleteApi(row.id),
+          },
+          {
+            default: () => '删除',
+            icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),
+          },
+        ),
+      ]
+    },
+  },
+]
 watch(
   () => currentMenu.value,
   async (v) => {
     await nextTick()
-    if (v)
+    if (v) {
       $table.value.handleSearch()
+      $tableApi.value.handleSearch()
+    }
   },
 )
 
@@ -206,7 +292,14 @@ function handleAddBtn() {
     okText: '保存',
   })
 }
-
+function handleAddApi() {
+  modalRef.value?.handleOpen({
+    action: 'add',
+    title: '新增按钮',
+    row: { type: 'API', parentId: currentMenu.value.id },
+    okText: '保存',
+  })
+}
 function handleEditBtn(row) {
   modalRef.value?.handleOpen({
     action: 'edit',
@@ -215,7 +308,14 @@ function handleEditBtn(row) {
     okText: '保存',
   })
 }
-
+function handleEditApi(row) {
+  modalRef.value?.handleOpen({
+    action: 'edit',
+    title: `编辑按钮 - ${row.name}`,
+    row,
+    okText: '保存',
+  })
+}
 function handleDeleteBtn(id) {
   const d = $dialog.warning({
     content: '确定删除？',
@@ -237,7 +337,27 @@ function handleDeleteBtn(id) {
     },
   })
 }
-
+function handleDeleteApi(id) {
+  const d = $dialog.warning({
+    content: '确定删除？',
+    title: '提示',
+    positiveText: '确定',
+    negativeText: '取消',
+    async onPositiveClick() {
+      try {
+        d.loading = true
+        await api.deletePermission(id)
+        $message.success('删除成功')
+        $tableApi.value.handleSearch()
+        d.loading = false
+      }
+      catch (error) {
+        console.error(error)
+        d.loading = false
+      }
+    },
+  })
+}
 async function handleEnable(item) {
   try {
     item.enableLoading = true
@@ -246,6 +366,21 @@ async function handleEnable(item) {
     })
     $message.success('操作成功')
     $table.value?.handleSearch()
+    item.enableLoading = false
+  }
+  catch (error) {
+    console.error(error)
+    item.enableLoading = false
+  }
+}
+async function handleApiEnable(item) {
+  try {
+    item.enableLoading = true
+    await api.savePermission(item.id, {
+      enable: !item.enable,
+    })
+    $message.success('操作成功')
+    $tableApi.value?.handleSearch()
     item.enableLoading = false
   }
   catch (error) {

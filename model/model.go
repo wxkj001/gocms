@@ -22,6 +22,7 @@ type Models struct {
 	UserModel       *UserModel
 	RoleModel       *RoleModel
 	RuleModel       *RuleModel
+	SysConfigModel  *SysConfigModel
 }
 
 func NewModel(db *xorm.Engine) (ModelResult, error) {
@@ -31,5 +32,6 @@ func NewModel(db *xorm.Engine) (ModelResult, error) {
 		UserModel:       NewUser(db),
 		RoleModel:       NewRole(db),
 		RuleModel:       NewRule(db),
+		SysConfigModel:  NewSysConfig(db),
 	}}, nil
 }

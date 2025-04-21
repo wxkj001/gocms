@@ -19,7 +19,7 @@ func NewPermission(admin *AdminRouter) *permission {
 }
 func (p *permission) List(ctx *gin.Context) {
 	id := ctx.GetFloat64("role_id")
-	isSuper := ctx.GetInt("is_super")
+	isSuper := ctx.GetFloat64("is_super")
 	if isSuper == 1 {
 		id = -1
 	}

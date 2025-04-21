@@ -40,7 +40,7 @@
           <n-input v-model:value="modalForm.code" />
         </n-form-item-gi>
         <n-form-item-gi
-          v-if="modalForm.type === 'MENU'"
+          v-if="modalForm.type === 'MENU' || modalForm.type === 'API'"
           :span="12"
           path="path"
           :rule="{
@@ -206,7 +206,7 @@ function handleOpen(options = {}) {
   const { action, row = {}, ...rest } = options
   modalAction.value = action
   modalForm.value = { ...defaultForm, ...row }
-  parentIdDisabled.value = !!row.parentId && row.type === 'BUTTON'
+  parentIdDisabled.value = !!row.parentId && (row.type === 'BUTTON' || row.type === 'API')
   modalRef.value.open({ ...rest, onOk: onSave })
 }
 

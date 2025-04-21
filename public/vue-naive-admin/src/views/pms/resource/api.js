@@ -12,6 +12,7 @@ import axios from 'axios'
 export default {
   getMenuTree: () => request.get('/admin/permission/list'),
   getButtons: ({ parentId }) => request.get(`/admin/permission/button/${parentId}`),
+  getApis: ({ parentId }) => request.get(`/admin/permission/api/${parentId}`),
   getComponents: () => axios.get(`${import.meta.env.VITE_PUBLIC_PATH}components.json`),
   addPermission: data => request.post('/admin/permission', data),
   savePermission: (id, data) => request.patch(`/admin/permission/${id}`, data),

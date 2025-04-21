@@ -66,4 +66,14 @@ func (c *AdminRouter) RouteRegister(g *gin.Engine, r *gin.RouterGroup) {
 		roleRouter.PATCH("/:id", role.Update)
 		roleRouter.DELETE("/:id", role.Delete)
 	}
+	// 配置
+	config := NewSysConfig(c)
+	{
+		configRouter := admin.Group("/config", c.middle.Jwt.AdminJWT())
+		configRouter.GET("/list", config.List)
+		configRouter.PATCH("/:key", config.Update)
+		/* configRouter.POST("/", config.Add)
+		configRouter.PATCH("/:id", config.Update)
+		configRouter.DELETE("/:id", config.Delete) */
+	}
 }

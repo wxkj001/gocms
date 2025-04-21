@@ -35,7 +35,7 @@ func (c *TestRouter) RouteRegister(g *gin.Engine, r *gin.RouterGroup) {
 }
 
 func (c *TestRouter) GetCatList(ctx *gin.Context) {
-	err := c.plugins.Add("count_vowels")
+	err := c.plugins.Add("reactor")
 	if err != nil {
 		ctx.JSON(http.StatusOK, router.Response{
 			Code: 500,
@@ -43,7 +43,7 @@ func (c *TestRouter) GetCatList(ctx *gin.Context) {
 		})
 		return
 	}
-	pl, err := c.plugins.Use("count_vowels")
+	pl, err := c.plugins.Use("reactor")
 	if err != nil {
 		ctx.JSON(http.StatusOK, router.Response{
 			Code: 500,
@@ -51,7 +51,7 @@ func (c *TestRouter) GetCatList(ctx *gin.Context) {
 		})
 		return
 	}
-	exit, out, err := pl.Call("count_vowels", []byte("Yellow, World!"))
+	exit, out, err := pl.Call("greet", []byte("Yellow, World!"))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(int(exit))

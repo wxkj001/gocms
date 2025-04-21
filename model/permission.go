@@ -12,7 +12,7 @@ type Permission struct {
 	Name        string `json:"name" xorm:"name"`
 	Code        string `json:"code" xorm:"code"`
 	Type        string `json:"type" xorm:"type null "`
-	Parentid    int64  `json:"parent_id" xorm:"parentId null "`
+	Parentid    int64  `json:"parentId" xorm:"parentId null "`
 	Path        string `json:"path" xorm:"path null "`
 	Redirect    string `json:"redirect" xorm:"redirect null "`
 	Icon        string `json:"icon" xorm:"icon null "`
@@ -66,7 +66,7 @@ func (p *PermissionModel) GetMenuTree() ([]*MenuNode, error) {
 // GetMenuTreeByType 根据类型获取菜单树
 func (p *PermissionModel) GetMenuTreeByType(menuType string, parentId int) ([]Permission, error) {
 	var permissions []Permission
-	err := p.db.Where("type = ? AND enable = 1 and parentId=?", strings.ToUpper(menuType), parentId).Find(&permissions)
+	err := p.db.Where("type = ? and parentId=?", strings.ToUpper(menuType), parentId).Find(&permissions)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +132,7 @@ func (p *PermissionModel) AddMenu(menu *Permission) (int64, error) {
 
 // UpdateMenu 更新菜单
 func (p *PermissionModel) UpdateMenu(menu *Permission) (int64, error) {
-	return p.db.ID(menu.ID).Update(menu)
+	return p.db.ID(menu.ID).MustCols("enable").Update(menu)
 }
 
 // DeleteMenu 删除菜单及其子菜单
