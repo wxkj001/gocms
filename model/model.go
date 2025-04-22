@@ -23,6 +23,7 @@ type Models struct {
 	RoleModel       *RoleModel
 	RuleModel       *RuleModel
 	SysConfigModel  *SysConfigModel
+	MediasModel     *MediasModel
 }
 
 func NewModel(db *xorm.Engine) (ModelResult, error) {
@@ -33,5 +34,6 @@ func NewModel(db *xorm.Engine) (ModelResult, error) {
 		RoleModel:       NewRole(db),
 		RuleModel:       NewRule(db),
 		SysConfigModel:  NewSysConfig(db),
+		MediasModel:     NewMedias(db),
 	}}, nil
 }

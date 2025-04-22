@@ -1,6 +1,7 @@
 package app
 
 import (
+	"gocms/extend"
 	"gocms/middleware"
 	"gocms/model"
 	"gocms/service"
@@ -29,6 +30,8 @@ func New() *fx.App {
 		middleware.MiddlewareModule,
 		// 注入casbin
 		casbinModule,
+		// 注入extend模块
+		extend.ExtendModule,
 		//
 		// validates.ValidateModule,
 		//	定时模块

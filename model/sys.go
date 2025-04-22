@@ -22,6 +22,20 @@ func NewSysConfig(db *xorm.Engine) *SysConfigModel {
 	return &SysConfigModel{db: db}
 }
 
+// 获取所有配置返回key=>value
+func (m *SysConfigModel) GetAllConfigMap() (map[string]string, error) {
+	var config []SysConfig
+	err := m.db.Find(&config)
+	if err != nil {
+		return nil, err
+	}
+	configMap := make(map[string]string)
+	for _, v := range config {
+		configMap[v.ConfigKey] = v.ConfigValue
+	}
+	return configMap, nil
+}
+
 // 根据key获取配置
 func (m *SysConfigModel) GetConfigByKey(key string) (*SysConfig, error) {
 	var config SysConfig
