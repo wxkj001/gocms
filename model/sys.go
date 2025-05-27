@@ -4,7 +4,7 @@ import "xorm.io/xorm"
 
 type SysConfig struct {
 	ConfigName  string `json:"config_name" xorm:"config_name"`
-	ConfigKey   string `json:"config_key" xorm:"config_key"`
+	ConfigKey   string `json:"config_key" xorm:"config_key pk index"`
 	ConfigValue string `json:"config_value" xorm:"config_value"`
 	ConfigType  string `json:"config_type" xorm:"config_type"` // 设置类型
 }
@@ -58,7 +58,7 @@ func (m *SysConfigModel) GetAllConfig() ([]SysConfig, error) {
 
 // 更新
 func (m *SysConfigModel) UpdateConfig(config *SysConfig) error {
-	_, err := m.db.MustCols("config_value").Update(config)
+	_, err := m.db.MustCols("config_value").Where("config_key=?", config.ConfigKey).Update(config)
 	if err != nil {
 		return err
 	}

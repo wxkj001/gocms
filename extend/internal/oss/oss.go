@@ -52,6 +52,9 @@ func (pr *ProgressReader) Read(p []byte) (n int, err error) {
 func (s *S3) GetConfig() *S3Config {
 	return &S3Config{}
 }
+func (s *S3) Err() error {
+	return s.err
+}
 
 // GetObjectURL 获取对象的URL
 // bucketName: 桶名称
@@ -84,6 +87,9 @@ func (s *S3) Client(config *S3Config) *S3 {
 		Creds:  credentials.NewStaticV4(config.AccessKeyID, config.SecretAccessKey, config.Token),
 		Secure: config.UseSSL,
 	})
+	if s.err != nil {
+		return s
+	}
 	found, err := s.client.BucketExists(context.Background(), config.BucketName)
 	if err != nil {
 		s.err = err

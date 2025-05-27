@@ -109,7 +109,14 @@ func (c *UploadRouter) Upload(ctx *gin.Context) {
 		s3Config.UseSSL = utils.ToInt(sys["UseSSL"]) == 1
 		s3Config.Token = sys["Token"]
 		s3 := c.extend.S3.Client(s3Config)
-
+		if s3.Err() != nil {
+			c.log.Error("初始化S3客户端失败", zap.Error(s3.Err()))
+			ctx.JSON(http.StatusOK, router.Response{
+				Code:    500,
+				Message: "初始化S3客户端失败",
+			})
+			return
+		}
 		// 使用S3服务上传文件
 		_, err := s3.UploadWithReader(s3Config.BucketName, objectName, file, fileSize, contentType)
 		if err != nil {
@@ -188,6 +195,16 @@ func (c *UploadRouter) GetFile(ctx *gin.Context) {
 		s3Config.UseSSL = utils.ToInt(sys["UseSSL"]) == 1
 		s3Config.Token = sys["Token"]
 		s3 := c.extend.S3.Client(s3Config)
+		if s3.Err() != nil {
+			c.log.Error("初始化S3客户端失败", zap.Error(s3.Err()))
+			ctx.JSON(http.StatusOK, router.Response{
+				Code:    500,
+				Message: "初始化S3客户端失败",
+			})
+			return
+		}
+		// 移除filename里第一个/
+		filename = strings.TrimLeft(filename, "/")
 		// 使用S3服务获取文件
 		object, err := s3.GetObjectURL(s3Config.BucketName, filename, 3600)
 		if err != nil {

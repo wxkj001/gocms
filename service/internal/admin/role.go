@@ -244,6 +244,7 @@ func (a *role) Update(ctx *gin.Context) {
 			})
 			return
 		}
+		a.e.LoadPolicy()
 		a.e.SavePolicy()
 		plist, err := a.model.PermissionModel.GetPermissionsByRoleIDAndType(role.PermissionIds, "API")
 		if err != nil {
@@ -262,6 +263,7 @@ func (a *role) Update(ctx *gin.Context) {
 		}
 		a.e.LoadPolicy()
 		a.e.SavePolicy()
+
 	}
 	ctx.JSON(200, router.Response{
 		Code: 200,

@@ -174,7 +174,7 @@ func (p *PermissionModel) DeleteMenu(id int64) error {
 // getChildMenuIDs 递归获取所有子菜单ID
 func (p *PermissionModel) getChildMenuIDs(parentID int64) ([]int64, error) {
 	var permissions []Permission
-	err := p.db.Where("parent_id = ?", parentID).Find(&permissions)
+	err := p.db.Where("parentId = ?", parentID).Find(&permissions)
 	if err != nil {
 		return nil, err
 	}
