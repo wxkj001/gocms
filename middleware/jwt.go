@@ -49,7 +49,7 @@ func (l *JwtMiddleware) AdminJWT() gin.HandlerFunc {
 		}
 
 		if userId, ok := (claims)["user_id"]; ok {
-			b, err := l.e.Enforce(utils.ToString(userId), c.Request.URL.Path, "admin")
+			b, err := l.e.Enforce(utils.ToString(userId), c.Request.URL.Path, strings.ToUpper(c.Request.Method))
 			if err != nil {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 				c.Abort()

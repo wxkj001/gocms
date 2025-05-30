@@ -38,7 +38,7 @@ func (c *AdminRouter) RouteRegister(g *gin.Engine, r *gin.RouterGroup) {
 		userRouter.GET("/detail", user.Detail)
 		userRouter.GET("/list", user.List)
 		userRouter.POST("/", user.Add)
-		userRouter.POST("/update", user.Update)
+		userRouter.PATCH("/:id", user.Update)
 		userRouter.DELETE("/:id", user.Delete)
 		userRouter.PATCH("/password/reset/:id", user.ResetPassword)
 		userRouter.GET("/permissions", user.Permission)

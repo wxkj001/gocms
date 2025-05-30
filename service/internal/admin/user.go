@@ -125,7 +125,18 @@ func (this *user) Detail(ctx *gin.Context) {
 
 // 修改用户信息
 func (this *user) Update(ctx *gin.Context) {
-	userReq := model.User{}
+	id := ctx.Param("id")
+	if id == "" {
+		ctx.JSON(http.StatusOK, router.Response{
+			Code:    500,
+			Message: "id不能为空",
+		})
+	}
+	type UserReq struct {
+		*model.UserGroup
+		RoleIds []int64 `json:"roleIds"`
+	}
+	userReq := &UserReq{}
 	if err := ctx.ShouldBindBodyWith(&userReq, binding.JSON); err != nil {
 		ctx.JSON(http.StatusOK, router.Response{
 			Code:    500,
@@ -134,7 +145,7 @@ func (this *user) Update(ctx *gin.Context) {
 		return
 	}
 	userReq.Updatetime = time.Now()
-	err := this.model.UserModel.UpdateUser(int64(userReq.ID), &userReq)
+	err := this.model.UserModel.UpdateUser(int64(utils.ToInt(id)), userReq.UserGroup)
 	if err != nil {
 		ctx.JSON(http.StatusOK, router.Response{
 			Code:    500,
@@ -142,6 +153,30 @@ func (this *user) Update(ctx *gin.Context) {
 		})
 		return
 	}
+	err = this.model.RuleModel.Delete(&model.Rule{
+		Ptype: "g",
+		V0:    id,
+		V1:    "",
+		V2:    "user",
+		V3:    "",
+		V4:    "",
+		V5:    "",
+	})
+	if err != nil {
+		ctx.JSON(200, router.Response{
+			Code:    500,
+			Message: err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+	this.e.LoadPolicy()
+	this.e.SavePolicy()
+	for _, v := range userReq.RoleIds {
+		this.e.AddGroupingPolicy(utils.ToString(userReq.User.ID), utils.ToString(v), "user")
+	}
+	this.e.LoadPolicy()
+	this.e.SavePolicy()
 	ctx.JSON(http.StatusOK, router.Response{
 		Code: 200,
 		Data: userReq,
@@ -309,9 +344,11 @@ func (this *user) ResetPassword(ctx *gin.Context) {
 		})
 		return
 	}
-	user := model.User{
-		ID:       int64(iid),
-		Password: fmt.Sprintf("%x", md5.Sum([]byte(userReq.Password))),
+	user := model.UserGroup{
+		User: model.User{
+			ID:       int64(iid),
+			Password: fmt.Sprintf("%x", md5.Sum([]byte(userReq.Password))),
+		},
 	}
 	err = this.model.UserModel.UpdateUser(int64(iid), &user)
 	if err != nil {

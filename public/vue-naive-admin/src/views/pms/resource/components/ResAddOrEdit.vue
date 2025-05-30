@@ -153,6 +153,26 @@
         >
           <n-input-number v-model:value="modalForm.order" />
         </n-form-item-gi>
+        <n-form-item-gi
+          v-if="modalForm.type === 'API'"
+          label="权限"
+          :span="12"
+          path="method"
+        >
+          <template #label>
+            <QuestionLabel
+              label="权限"
+              content="读写删改,时需联系开发人员"
+            />
+          </template>
+          <n-select
+            v-model:value="modalForm.method"
+            :options="apiOptions"
+            clearable
+            filterable
+            multiple
+          />
+        </n-form-item-gi>
       </n-grid>
     </n-form>
   </MeModal>
@@ -190,6 +210,13 @@ const layoutOptions = [
   { label: '全面-full', value: 'full' },
   { label: '空白-empty', value: 'empty' },
 ]
+const apiOptions = [
+  { label: 'GET', value: 'GET' },
+  { label: 'POST', value: 'POST' },
+  { label: 'DELETE', value: 'DELETE' },
+  { label: 'PUT', value: 'PUT' },
+  { label: 'PATCH', value: 'PATCH' },
+]
 const required = {
   required: true,
   message: '此为必填项',
@@ -205,6 +232,10 @@ const parentIdDisabled = ref(false)
 function handleOpen(options = {}) {
   const { action, row = {}, ...rest } = options
   modalAction.value = action
+  if (row.method !== '') {
+    row.method = row.method?.split('|') || ''
+  }
+
   modalForm.value = { ...defaultForm, ...row }
   parentIdDisabled.value = !!row.parentId && (row.type === 'BUTTON' || row.type === 'API')
   modalRef.value.open({ ...rest, onOk: onSave })
@@ -218,10 +249,12 @@ async function onSave() {
     if (!modalForm.value.parentId)
       modalForm.value.parentId = null
     if (modalAction.value === 'add') {
+      modalForm.value.method = modalForm.value.method.join('|')
       const res = await api.addPermission(modalForm.value)
       newFormData = res.data
     }
     else if (modalAction.value === 'edit') {
+      modalForm.value.method = modalForm.value.method.join('|')
       await api.savePermission(modalForm.value.id, modalForm.value)
     }
     okLoading.value = false

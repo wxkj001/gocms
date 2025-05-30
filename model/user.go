@@ -11,8 +11,8 @@ type User struct {
 	Username   string    `json:"username" xorm:"username"`
 	Password   string    `json:"password" xorm:"password"`
 	Enable     bool      `json:"enable" xorm:"enable tinyint(1)"`
-	Createtime time.Time `json:"createTime" xorm:"createTime"`
-	Updatetime time.Time `json:"updateTime" xorm:"updateTime"`
+	Createtime time.Time `json:"createTime" xorm:"created"`
+	Updatetime time.Time `json:"updateTime" xorm:"updated"`
 }
 
 // TableName 表名称
@@ -91,7 +91,6 @@ func (m *UserModel) GetUserByUsername(username string) (*UserGroup, error) {
 // 创建用户
 func (m *UserModel) CreateUser(user *UserGroup) error {
 	session := m.db.NewSession()
-	defer session.Close()
 	session.Begin()
 	defer session.Rollback()
 	_, err := session.Insert(&user.User)
@@ -109,8 +108,21 @@ func (m *UserModel) CreateUser(user *UserGroup) error {
 }
 
 // 更新用户
-func (m *UserModel) UpdateUser(id int64, user *User) error {
-	_, err := m.db.ID(id).Update(user)
+func (m *UserModel) UpdateUser(id int64, user *UserGroup) error {
+	session := m.db.NewSession()
+	session.Begin()
+	defer session.Rollback()
+	_, err := session.ID(id).Update(&user.User)
+	if err != nil {
+		return err
+	}
+	user.Profile.Userid = user.User.ID
+	user.Profile.Nickname = user.User.Username
+	_, err = session.Where("userId=?", id).Update(user.Profile)
+	if err != nil {
+		return err
+	}
+	err = session.Commit()
 	return err
 }
 

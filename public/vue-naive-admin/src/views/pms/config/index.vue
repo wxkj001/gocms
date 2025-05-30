@@ -90,6 +90,8 @@ const columns = [
               rubberBand: false,
               value: row.config_value,
               loading: !!row.enableLoading,
+              checkedValue: '1',
+              uncheckedValue: '0',
               onUpdateValue: () => {},
             },
             {

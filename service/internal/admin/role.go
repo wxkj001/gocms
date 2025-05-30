@@ -168,6 +168,7 @@ func (a *role) Delete(ctx *gin.Context) {
 		})
 		return
 	}
+	a.e.LoadPolicy()
 	a.e.SavePolicy()
 	ctx.JSON(200, router.Response{
 		Code: 200,
@@ -214,7 +215,7 @@ func (a *role) Update(ctx *gin.Context) {
 			Ptype: "p",
 			V0:    id,
 			V1:    "",
-			V2:    "admin",
+			V2:    "",
 			V3:    "",
 			V4:    "",
 			V5:    "",
@@ -256,7 +257,7 @@ func (a *role) Update(ctx *gin.Context) {
 			return
 		}
 		for _, v := range plist {
-			a.e.AddPolicy(strconv.Itoa(int(role.Role.ID)), v.Path, "admin")
+			a.e.AddPolicy(strconv.Itoa(int(role.Role.ID)), v.Path, v.Method)
 		}
 		for _, v := range role.PermissionIds {
 			a.e.AddPolicy(strconv.Itoa(int(role.Role.ID)), strconv.Itoa(int(v)), "role")
