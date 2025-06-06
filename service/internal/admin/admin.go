@@ -1,33 +1,27 @@
 package admin
 
 import (
-	"gocms/cache"
+	"gocms/extend"
 	"gocms/middleware"
 	"gocms/model"
 
-	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
-	"go.uber.org/zap"
 )
 
-func NewAdminRouter(log *zap.Logger, config *viper.Viper, middle middleware.MiddlewareParams, models model.ModelParams, e *casbin.Enforcer, cache cache.Cache) *AdminRouter {
-	return &AdminRouter{log: log, config: config, middle: middle, model: models, e: e, cache: cache}
+func NewAdminRouter(middle middleware.MiddlewareParams, models model.ModelParams, res extend.ResponseParams) *AdminRouter {
+	return &AdminRouter{middle: middle, model: models, ResponseParams: res}
 }
 
 type AdminRouter struct {
+	extend.ResponseParams
 	middle middleware.MiddlewareParams
-	log    *zap.Logger
-	config *viper.Viper
-	model  model.ModelParams
-	g      *gin.Engine
-	e      *casbin.Enforcer
-	cache  cache.Cache
+
+	model model.ModelParams
 }
 
 // 注册路由
 func (c *AdminRouter) RouteRegister(g *gin.Engine, r *gin.RouterGroup) {
-	c.g = g
+	c.G = g
 	admin := r.Group("/admin")
 	// 用户
 	user := NewUser(c)

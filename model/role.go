@@ -61,11 +61,11 @@ func (m *RoleModel) GetList(pageSize, pageNo int, name string) ([]RolePerGroup, 
 		db1 = db1.Where("name like ?", "%"+name+"%")
 	}
 
-	count, err := db.Table("role").Count()
-	if err != nil {
-		return nil, 0, err
-	}
-	err = db1.Limit(pageSize, (pageNo-1)*pageSize).Find(&list)
+	/* 	count, err := db.Table("role").Count()
+	   	if err != nil {
+	   		return nil, 0, err
+	   	} */
+	count, err := db1.Limit(pageSize, (pageNo-1)*pageSize).FindAndCount(&list)
 	for k, v := range list {
 		var perIds []int64
 		err := m.db.Table("rule").Cols("v1").Where("ptype = ? and v0=? and v2=?", "p", v.ID, "role").Find(&perIds)

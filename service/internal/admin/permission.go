@@ -171,8 +171,8 @@ func (p *permission) Delete(ctx *gin.Context) {
 }
 func (p *permission) Routers(ctx *gin.Context) {
 	list := []string{}
-	for _, v := range p.g.Routes() {
-		p.log.Info(v.Path, zap.String("method", v.Method))
+	for _, v := range p.G.Routes() {
+		p.Log.Info(v.Path, zap.String("method", v.Method))
 		list = append(list, v.Path)
 	}
 	ctx.JSON(200, router.Response{

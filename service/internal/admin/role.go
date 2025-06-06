@@ -93,13 +93,13 @@ func (a *role) Add(ctx *gin.Context) {
 		return
 	}
 	for _, v := range plist {
-		a.e.AddPolicy(strconv.Itoa(int(role.Role.ID)), v.Path, "admin")
+		a.Casbin.AddPolicy(strconv.Itoa(int(role.Role.ID)), v.Path, "admin")
 	}
 	for _, v := range role.PermissionIds {
-		a.e.AddPolicy(strconv.Itoa(int(role.Role.ID)), strconv.Itoa(int(v)), "role")
+		a.Casbin.AddPolicy(strconv.Itoa(int(role.Role.ID)), strconv.Itoa(int(v)), "role")
 	}
-	a.e.LoadPolicy()
-	a.e.SavePolicy()
+	a.Casbin.LoadPolicy()
+	a.Casbin.SavePolicy()
 	ctx.JSON(200, router.Response{
 		Code: 200,
 	})
@@ -168,8 +168,8 @@ func (a *role) Delete(ctx *gin.Context) {
 		})
 		return
 	}
-	a.e.LoadPolicy()
-	a.e.SavePolicy()
+	a.Casbin.LoadPolicy()
+	a.Casbin.SavePolicy()
 	ctx.JSON(200, router.Response{
 		Code: 200,
 		Data: nil,
@@ -245,8 +245,8 @@ func (a *role) Update(ctx *gin.Context) {
 			})
 			return
 		}
-		a.e.LoadPolicy()
-		a.e.SavePolicy()
+		a.Casbin.LoadPolicy()
+		a.Casbin.SavePolicy()
 		plist, err := a.model.PermissionModel.GetPermissionsByRoleIDAndType(role.PermissionIds, "API")
 		if err != nil {
 			ctx.JSON(200, router.Response{
@@ -257,13 +257,13 @@ func (a *role) Update(ctx *gin.Context) {
 			return
 		}
 		for _, v := range plist {
-			a.e.AddPolicy(strconv.Itoa(int(role.Role.ID)), v.Path, v.Method)
+			a.Casbin.AddPolicy(strconv.Itoa(int(role.Role.ID)), v.Path, v.Method)
 		}
 		for _, v := range role.PermissionIds {
-			a.e.AddPolicy(strconv.Itoa(int(role.Role.ID)), strconv.Itoa(int(v)), "role")
+			a.Casbin.AddPolicy(strconv.Itoa(int(role.Role.ID)), strconv.Itoa(int(v)), "role")
 		}
-		a.e.LoadPolicy()
-		a.e.SavePolicy()
+		a.Casbin.LoadPolicy()
+		a.Casbin.SavePolicy()
 
 	}
 	ctx.JSON(200, router.Response{

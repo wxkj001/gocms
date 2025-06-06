@@ -12,7 +12,7 @@ var ExtendModule = fx.Module("extendModule", fx.Provide(NewExtend))
 
 type ExtendResult struct {
 	fx.Out
-	Models *Extend
+	Extend *Extend
 }
 type ExtendParams struct {
 	fx.In
@@ -23,7 +23,7 @@ type Extend struct {
 }
 
 func NewExtend(db *xorm.Engine) (ExtendResult, error) {
-	return ExtendResult{Models: &Extend{
+	return ExtendResult{Extend: &Extend{
 		S3: oss.NewS3(),
 	}}, nil
 }

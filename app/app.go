@@ -32,6 +32,7 @@ func New() *fx.App {
 		casbinModule,
 		// 注入extend模块
 		extend.ExtendModule,
+		extend.ResponseModules,
 		//
 		// validates.ValidateModule,
 		//	定时模块

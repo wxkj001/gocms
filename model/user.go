@@ -49,20 +49,20 @@ func NewUser(db *xorm.Engine) *UserModel {
 }
 
 // 获取用户列表
-func (m *UserModel) GetUserList() ([]UserProfileGroup, error) {
+func (m *UserModel) GetUserList(page, pageSize int) (int64, []UserProfileGroup, error) {
 	var users []UserProfileGroup
-	err := m.db.Join("LEFT", "profile", "user.id=profile.userId").Find(&users)
+	count, err := m.db.Join("LEFT", "profile", "user.id=profile.userId").Limit(pageSize, (page-1)*pageSize).FindAndCount(&users)
 	for k, v := range users {
 		roles := []RuleRoleGroup{}
 		err = m.db.Where("ptype =? and v0=?", "g", v.ID).
 			Join("INNER", "role", "role.id=rule.v1").
 			Find(&roles)
 		if err != nil {
-			return nil, err
+			return 0, nil, err
 		}
 		users[k].Role = roles
 	}
-	return users, err
+	return count, users, err
 }
 
 // 获取用户信息
@@ -129,7 +129,6 @@ func (m *UserModel) UpdateUser(id int64, user *UserGroup) error {
 // 删除用户
 func (m *UserModel) DeleteUser(id int64) error {
 	session := m.db.NewSession()
-	defer session.Close()
 	session.Begin()
 	_, err := session.Delete(&User{ID: id})
 	if err != nil {

@@ -7,6 +7,7 @@ type UdoData struct {
 	ID        int64     `json:"id" xorm:"id"`                 // Primary key
 	TenantId  int64     `json:"tenant_id" xorm:"tenant_id"`   // Tenant ID for multi-tenant isolation
 	ObjectId  int64     `json:"object_id" xorm:"object_id"`   // Reference to udo_object.id
+	Data      string    `json:"data" xorm:"data"`             // Data in JSON format
 	Status    int8      `json:"status" xorm:"status"`         // Status: 1-Active, 0-Inactive
 	CreatedAt time.Time `json:"created_at" xorm:"created_at"` // Creation time
 	UpdatedAt time.Time `json:"updated_at" xorm:"updated_at"` // Update time

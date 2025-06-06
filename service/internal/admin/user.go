@@ -55,8 +55,8 @@ func (this *user) Login(ctx *gin.Context) {
 		})
 		return
 	}
-	this.log.Debug("captcha: ", zap.String("X-Captcha-ID", ctx.GetHeader("X-Captcha-ID")), zap.Any("TT", strings.ToUpper(userReq.Captcha)))
-	res := this.cache.Get(ctx, "captcha-"+ctx.GetHeader("X-Captcha-ID"))
+	this.Log.Debug("captcha: ", zap.String("X-Captcha-ID", ctx.GetHeader("X-Captcha-ID")), zap.Any("TT", strings.ToUpper(userReq.Captcha)))
+	res := this.Cache.Get(ctx, "captcha-"+ctx.GetHeader("X-Captcha-ID"))
 	if res.Err() != nil {
 		ctx.JSON(http.StatusOK, router.Response{
 			Code:    500,
@@ -91,7 +91,7 @@ func (this *user) Login(ctx *gin.Context) {
 		"username": user.User.Username,
 		"role_id":  userRes.CurrentRole.ID,
 		"is_super": super,
-	}, this.config)
+	}, this.Config)
 	ctx.JSON(http.StatusOK, router.Response{
 		Code: 200,
 		Data: gin.H{
@@ -170,13 +170,13 @@ func (this *user) Update(ctx *gin.Context) {
 		})
 		return
 	}
-	this.e.LoadPolicy()
-	this.e.SavePolicy()
+	this.Casbin.LoadPolicy()
+	this.Casbin.SavePolicy()
 	for _, v := range userReq.RoleIds {
-		this.e.AddGroupingPolicy(utils.ToString(userReq.User.ID), utils.ToString(v), "user")
+		this.Casbin.AddGroupingPolicy(utils.ToString(userReq.User.ID), utils.ToString(v), "user")
 	}
-	this.e.LoadPolicy()
-	this.e.SavePolicy()
+	this.Casbin.LoadPolicy()
+	this.Casbin.SavePolicy()
 	ctx.JSON(http.StatusOK, router.Response{
 		Code: 200,
 		Data: userReq,
@@ -209,10 +209,10 @@ func (this *user) Add(ctx *gin.Context) {
 		return
 	}
 	for _, v := range userReq.RoleIds {
-		this.e.AddGroupingPolicy(utils.ToString(userReq.User.ID), utils.ToString(v))
+		this.Casbin.AddGroupingPolicy(utils.ToString(userReq.User.ID), utils.ToString(v))
 	}
-	this.e.LoadPolicy()
-	this.e.SavePolicy()
+	this.Casbin.LoadPolicy()
+	this.Casbin.SavePolicy()
 	ctx.JSON(http.StatusOK, router.Response{
 		Code: 200,
 		Data: userReq,
@@ -255,7 +255,11 @@ func (this *user) Delete(ctx *gin.Context) {
 
 // 获取用户列表
 func (this *user) List(ctx *gin.Context) {
-	users, err := this.model.UserModel.GetUserList()
+	pageNoReq := ctx.DefaultQuery("pageNo", "1")
+	pageSizeReq := ctx.DefaultQuery("pageSize", "10")
+	pageNo, _ := strconv.Atoi(pageNoReq)
+	pageSize, _ := strconv.Atoi(pageSizeReq)
+	count, users, err := this.model.UserModel.GetUserList(pageNo, pageSize)
 	if err != nil {
 		ctx.JSON(http.StatusOK, router.Response{
 			Code:    500,
@@ -265,7 +269,10 @@ func (this *user) List(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, router.Response{
 		Code: 200,
-		Data: users,
+		Data: gin.H{
+			"pageData": users,
+			"total":    count,
+		},
 	})
 }
 
@@ -295,7 +302,7 @@ func (this *user) Captcha(ctx *gin.Context) {
 	svg, code := utils.GenerateSVG(80, 40)
 	tu, _ := uuid.NewUUID()
 	// 将验证码存储到 Redis
-	err := this.cache.Set(ctx, "captcha-"+tu.String(), code, time.Minute*5)
+	err := this.Cache.Set(ctx, "captcha-"+tu.String(), code, time.Minute*5)
 	if err != nil {
 		ctx.JSON(http.StatusOK, router.Response{
 			Code:    500,
@@ -316,7 +323,7 @@ func (this *user) RefreshToken(ctx *gin.Context) {
 		"user_id":  ctx.GetFloat64("user_id"),
 		"username": ctx.GetString("username"),
 		"role_id":  ctx.GetFloat64("role_id"),
-	}, this.config)
+	}, this.Config)
 	ctx.JSON(http.StatusOK, router.Response{
 		Code: 200,
 		Data: gin.H{
