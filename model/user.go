@@ -91,6 +91,7 @@ func (m *UserModel) GetUserByUsername(username string) (*UserGroup, error) {
 // 创建用户
 func (m *UserModel) CreateUser(user *UserGroup) error {
 	session := m.db.NewSession()
+	defer session.Close()
 	session.Begin()
 	defer session.Rollback()
 	_, err := session.Insert(&user.User)
@@ -110,6 +111,7 @@ func (m *UserModel) CreateUser(user *UserGroup) error {
 // 更新用户
 func (m *UserModel) UpdateUser(id int64, user *UserGroup) error {
 	session := m.db.NewSession()
+	defer session.Close()
 	session.Begin()
 	defer session.Rollback()
 	_, err := session.ID(id).Update(&user.User)
@@ -129,6 +131,7 @@ func (m *UserModel) UpdateUser(id int64, user *UserGroup) error {
 // 删除用户
 func (m *UserModel) DeleteUser(id int64) error {
 	session := m.db.NewSession()
+	defer session.Close()
 	session.Begin()
 	_, err := session.Delete(&User{ID: id})
 	if err != nil {

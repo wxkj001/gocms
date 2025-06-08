@@ -24,6 +24,8 @@ type Models struct {
 	RuleModel       *RuleModel
 	SysConfigModel  *SysConfigModel
 	MediasModel     *MediasModel
+	UdoObjectModel  *UdoObjectModel
+	UdoFieldModel   *UdoFieldModel
 }
 
 func NewModel(db *xorm.Engine) (ModelResult, error) {
@@ -35,5 +37,7 @@ func NewModel(db *xorm.Engine) (ModelResult, error) {
 		RuleModel:       NewRule(db),
 		SysConfigModel:  NewSysConfig(db),
 		MediasModel:     NewMedias(db),
+		UdoObjectModel:  NewUdoObject(db),
+		UdoFieldModel:   NewUdoField(db),
 	}}, nil
 }

@@ -70,4 +70,13 @@ func (c *AdminRouter) RouteRegister(g *gin.Engine, r *gin.RouterGroup) {
 		configRouter.PATCH("/:id", config.Update)
 		configRouter.DELETE("/:id", config.Delete) */
 	}
+	// udo
+	udoObject := NewUdo(c)
+	{
+		udoRouter := admin.Group("/udo/object", c.middle.Jwt.AdminJWT())
+		udoRouter.GET("/list", udoObject.GetUdoObjectList)
+		udoRouter.POST("/", udoObject.CreateUdoObject)
+		udoRouter.PUT("/:id", udoObject.UpdateUdoObject)
+		// udoRouter.DELETE("/:id", udo.Delete)
+	}
 }

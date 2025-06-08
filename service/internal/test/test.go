@@ -13,13 +13,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	"xorm.io/xorm"
 )
 
-func NewTestRouter(log *zap.Logger, config *viper.Viper, plugin *plugin.Plugins, middle middleware.MiddlewareParams, models model.ModelParams) *TestRouter {
-	return &TestRouter{log: log, config: config, middle: middle, model: models, plugins: plugin}
+func NewTestRouter(log *zap.Logger, config *viper.Viper, plugin *plugin.Plugins, middle middleware.MiddlewareParams, models model.ModelParams, db *xorm.Engine) *TestRouter {
+	return &TestRouter{log: log, config: config, middle: middle, model: models, plugins: plugin, db: db}
 }
 
 type TestRouter struct {
+	db      *xorm.Engine
 	middle  middleware.MiddlewareParams
 	log     *zap.Logger
 	config  *viper.Viper
@@ -61,7 +63,28 @@ func (c *TestRouter) GetCatList(ctx *gin.Context) {
 		Data: string(out),
 	})
 }
+
 func (c *TestRouter) GetCatList2(ctx *gin.Context) {
+	/* name, dt, err := utils.SyncTable("test", []map[string]any{
+		{
+			"name": "name",
+			"type": "string",
+			"constraints": map[string]interface{}{
+				"varchar": 100,
+			},
+		},
+		{
+			"name": "test_a",
+			"type": "string",
+			"constraints": map[string]interface{}{
+				"varchar": 100,
+			},
+		},
+	})
+	if err != nil {
+		return
+	}
+	c.log.Debug("m", zap.Any("m", name)) */
 	token, _ := utils.GenerateToken(map[string]any{
 		"user_id": 1,
 		"role":    "1",
