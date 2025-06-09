@@ -1,23 +1,20 @@
-<!--------------------------------
- - @Author: Ronnie Zhang
- - @LastEditor: Ronnie Zhang
- - @LastEditTime: 2024/04/01 15:52:31
- - @Email: zclzone@outlook.com
- - Copyright © 2023 Ronnie Zhang(大脸怪) | https://isme.top
- --------------------------------->
-
 <template>
   <MeModal ref="modalRef">
-    <n-form ref="modalFormRef" label-placement="left" require-mark-placement="left" :label-width="100"
+    <n-form
+      ref="modalFormRef"
+      label-placement="left"
+      require-mark-placement="left"
+      :rules="fieldRules"
+      :label-width="100"
       :model="modalForm">
       <n-grid :cols="2" :x-gap="24">
         <n-grid-item>
-          <n-form-item label="字段编码" path="code">
-            <n-input v-model:value="modalForm.code" placeholder="请输入字段编码" :disabled="isEdit" />
+          <n-form-item label="字段编码" path="code" >
+            <n-input v-model:value="modalForm.code" placeholder="请输入字段编码" :disabled="modalAction === 'edit'" />
           </n-form-item>
         </n-grid-item>
         <n-grid-item>
-          <n-form-item label="字段名称" path="name">
+          <n-form-item label="字段名称" path="name" >
             <n-input v-model:value="modalForm.name" placeholder="请输入字段名称" />
           </n-form-item>
         </n-grid-item>
@@ -27,12 +24,12 @@
         <n-grid-item>
           <n-form-item label="字段类型" path="field_type">
             <n-select v-model:value="modalForm.field_type" :options="fieldTypeOptions" placeholder="请选择字段类型"
-              :disabled="isEdit" />
+                      :disabled="modalAction === 'edit'" />
           </n-form-item>
         </n-grid-item>
         <n-grid-item>
           <n-form-item label="是否必填" path="is_required">
-            <n-switch v-model:value="modalForm.is_required" />
+            <n-switch v-model:value="modalForm.is_required" :disabled="modalAction === 'edit'" />
           </n-form-item>
         </n-grid-item>
       </n-grid>
@@ -98,7 +95,7 @@
       <n-grid :cols="2" :x-gap="24">
         <n-grid-item>
           <n-form-item label="是否唯一" path="is_unique">
-            <n-switch v-model:value="modalForm.is_unique" />
+            <n-switch v-model:value="modalForm.is_unique" :disabled="modalAction === 'edit'" />
           </n-form-item>
         </n-grid-item>
         <n-grid-item>
@@ -129,12 +126,12 @@ import { useForm, useModal } from '@/composables'
 
 import api from '../api'
 
-const props = defineProps({
+/* const props = defineProps({
   menus: {
     type: Array,
     required: true,
   },
-})
+}) */
 const emit = defineEmits(['refresh'])
 // 字段类型选项
 const fieldTypeOptions = [
@@ -147,7 +144,7 @@ const fieldTypeOptions = [
   { label: '日期时间', value: 'datetime' },
   { label: '枚举', value: 'enum' },
   { label: '文件', value: 'file' },
-  { label: '图片', value: 'image' }
+  { label: '图片', value: 'image' },
 ]
 const defaultForm = {
   code: '',
@@ -167,14 +164,25 @@ const defaultForm = {
   help_text: '',
   is_unique: false,
   is_searchable: false,
-  sort_order: 0
+  sort_order: 0,
+  status: 1,
 }
 
 const [modalFormRef, modalForm, validation] = useForm()
 const [modalRef, okLoading] = useModal()
-
+const fieldRules = {
+  code: [
+    { required: true, message: '请输入字段编码', trigger: 'blur' },
+    {
+      pattern: /^[a-z]\w*$/i,
+      message: '字段编码必须以字母开头，只能包含字母、数字和下划线',
+      trigger: 'blur',
+    },
+  ],
+  name: [{ required: true, message: '请输入字段名称', trigger: 'blur' }],
+  field_type: [{ required: true, message: '请选择字段类型', trigger: 'change' }],
+}
 const modalAction = ref('')
-const parentIdDisabled = ref(false)
 function handleOpen(options = {}) {
   const { action, row = {}, ...rest } = options
   modalAction.value = action
@@ -182,21 +190,26 @@ function handleOpen(options = {}) {
   // parentIdDisabled.value = !!row.parentId && (row.type === 'BUTTON' || row.type === 'API')
   modalRef.value.open({ ...rest, onOk: onSave })
 }
-
+function addOption() {
+  modalForm.value.enum_options.push({ value: '', label: '' })
+}
+function removeOption(index) {
+  if (modalForm.value.enum_options.length > 1) {
+    modalForm.value.enum_options.splice(index, 1)
+  }
+}
 async function onSave() {
   await validation()
   okLoading.value = true
   try {
     let newFormData
     if (modalAction.value === 'add') {
-
       const res = await api.addUdoField(modalForm.value)
       newFormData = res.data
     }
     else if (modalAction.value === 'edit') {
-
-
-      await api.savePermission(modalForm.value.id, modalForm.value)
+      // await api.savePermission(modalForm.value.id, modalForm.value)
+      await api.getUdoFieldUp(modalForm.value)
     }
     okLoading.value = false
     $message.success('保存成功')

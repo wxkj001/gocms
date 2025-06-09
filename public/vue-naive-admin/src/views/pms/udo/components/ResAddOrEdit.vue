@@ -16,7 +16,6 @@
       :model="modalForm"
     >
       <n-grid :cols="24" :x-gap="24">
-       
         <n-form-item-gi :span="12" path="name" :rule="required">
           <template #label>
             <QuestionLabel label="名称" content="标题" />
@@ -42,23 +41,13 @@ import pagePathes from 'isme:page-pathes'
 import api from '../api'
 import QuestionLabel from './QuestionLabel.vue'
 
-const props = defineProps({
+/* const props = defineProps({
   menus: {
     type: Array,
     required: true,
   },
-})
+}) */
 const emit = defineEmits(['refresh'])
-
-const menuOptions = computed(() => {
-  return [{ name: '根菜单', id: '', children: props.menus || [] }]
-})
-const componentOptions = pagePathes.map(path => ({ label: path, value: path }))
-const iconOptions = icons.map(item => ({
-  label: () =>
-    h('span', { class: 'flex items-center' }, [h('i', { class: `${item} text-18 mr-8` }), item]),
-  value: item,
-}))
 
 const required = {
   required: true,
@@ -90,13 +79,10 @@ async function onSave() {
   try {
     let newFormData
     if (modalAction.value === 'add') {
-     
       const res = await api.addUdoObject(modalForm.value)
       newFormData = res.data
     }
     else if (modalAction.value === 'edit') {
-      
-      
       await api.savePermission(modalForm.value.id, modalForm.value)
     }
     okLoading.value = false

@@ -75,6 +75,10 @@ func CreateDynamicStruct(tableName string, fieldDefs []map[string]any) (any, err
 			reflectType = reflect.TypeOf(bool(false))
 		case "time":
 			reflectType = reflect.TypeOf(time.Time{})
+		case "date":
+			reflectType = reflect.TypeOf(time.Time{})
+		case "datetime":
+			reflectType = reflect.TypeOf(time.Time{})
 		default:
 			return nil, fmt.Errorf("unsupported field type: %s", fieldType)
 		}

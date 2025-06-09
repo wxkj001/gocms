@@ -1,11 +1,3 @@
-<!--------------------------------
- - @Author: Ronnie Zhang
- - @LastEditor: Ronnie Zhang
- - @LastEditTime: 2024/04/01 15:51:34
- - @Email: zclzone@outlook.com
- - Copyright © 2023 Ronnie Zhang(大脸怪) | https://isme.top
- --------------------------------->
-
 <template>
   <div>
     <n-space vertical :size="12">
@@ -67,9 +59,9 @@ async function handleAdd(data = {}) {
   })
 }
 
-function onSelect(keys, option, { action, node }) {
-  console.log("currentUdo",keys,option,node);
-  
+function onSelect(keys, option, { node }) {
+  // console.log('currentUdo', keys, option, node)
+
   emit('update:currentUdo', node)
 }
 
@@ -95,14 +87,14 @@ function renderSuffix({ option }) {
 
 function handleDelete(item) {
   $dialog.confirm({
-    content: `确认删除【${item.name}】？`,
+    content: `确认删除【${item.name}】？数据无价请确认备份后再删除！`,
     async confirm() {
       try {
         $message.loading('正在删除', { key: 'deleteMenu' })
-        await api.deletePermission(item.id)
+        await api.getUdoObjectDel(item.id)
         $message.success('删除成功', { key: 'deleteMenu' })
         emit('refresh')
-        emit('update:currentMenu', null)
+        emit('update:currentUdo', null)
       }
       catch (error) {
         console.error(error)

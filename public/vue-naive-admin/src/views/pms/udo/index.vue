@@ -1,4 +1,3 @@
-
 <template>
   <CommonPage>
     <div class="flex">
@@ -30,16 +29,15 @@
               {{ currentUdo.name }}
             </n-descriptions-item>
             <n-descriptions-item label="路由地址">
-              
+              /pm/udo/info/{{ currentUdo.code }}
             </n-descriptions-item>
           </n-descriptions>
-
 
           <div class="mt-32 flex justify-between">
             <h3 class="mb-12">
               字段列表
             </h3>
-            <NButton size="small" type="primary" @click="handleAddBtn">
+            <NButton size="small" type="primary" @click="handleAddField">
               <i class="i-fe:plus mr-4 text-14" />
               新增
             </NButton>
@@ -49,24 +47,24 @@
             ref="$table"
             :columns="btnsColumns"
             :scroll-x="-1"
-            :get-data="api.getButtons"
-            :query-items="{ parentId: currentUdo.id }"
+            :get-data="api.getUdoFieldList"
+            :query-items="{ object_id: currentUdo.id }"
           />
         </template>
         <n-empty v-else class="h-450 f-c-c" size="large" description="请选择菜单查看详情" />
       </div>
     </div>
     <!-- <ResAddOrEdit ref="modalRef" :menus="treeData" @refresh="initData" /> -->
-    <FieldAddOrEdit ref="modalRef" :menus="treeData" @refresh="initData" />
+    <FieldAddOrEdit ref="modalRef" :menus="treeData" @refresh="initfieldData" />
   </CommonPage>
 </template>
 
 <script setup>
 import { MeCrud } from '@/components'
-import { NButton, NSwitch } from 'naive-ui'
+import { NButton, NSwitch, NTag } from 'naive-ui'
 import api from './api'
-import MenuTree from './components/MenuTree.vue'
 import FieldAddOrEdit from './components/FieldAddOrEdit.vue'
+import MenuTree from './components/MenuTree.vue'
 
 const treeData = ref([])
 const treeLoading = ref(false)
@@ -76,39 +74,92 @@ const currentUdo = ref(null)
 async function initData(data) {
   treeLoading.value = true
   const res = await api.getUdoObject()
-  console.log("udo",data);
-  
   treeData.value = res?.data || []
   treeLoading.value = false
 
   if (data)
-  currentUdo.value = data
+    currentUdo.value = data
 }
 initData()
-
+async function initfieldData() {
+  $table.value?.handleSearch()
+}
 const modalRef = ref(null)
 
+// const columns = [
+//   {
+//     title: '字段编码',
+//     key: 'code'
+//   },
+//   {
+//     title: '字段名称',
+//     key: 'name'
+//   },
+
+//   {
+//     title: '操作',
+//     key: 'actions',
+//     render(row) {
+//       return h(NSpace, null, {
+//         default: () => [
+//           h(
+//             NButton,
+//             {
+//               size: 'small',
+//               onClick: () => handleEdit(row)
+//             },
+//             { default: () => '编辑' }
+//           ),
+//           h(
+//             NButton,
+//             {
+//               size: 'small',
+//               type: 'error',
+//               onClick: () => handleDelete(row)
+//             },
+//             { default: () => '删除' }
+//           )
+//         ]
+//       })
+//     }
+//   }
+// ]
 const btnsColumns = [
   { title: '名称', key: 'name' },
   { title: '编码', key: 'code' },
   {
-    title: '状态',
-    key: 'enable',
-    render: row =>
-      h(
-        NSwitch,
-        {
-          size: 'small',
-          rubberBand: false,
-          value: row.enable,
-          loading: !!row.enableLoading,
-          onUpdateValue: () => handleEnable(row),
-        },
-        {
-          checked: () => '启用',
-          unchecked: () => '停用',
-        },
-      ),
+    title: '字段类型',
+    key: 'field_type',
+    render(row) {
+      const typeMap = {
+        string: '文本',
+        text: '长文本',
+        richtext: '富文本',
+        number: '数字',
+        boolean: '布尔',
+        date: '日期',
+        datetime: '日期时间',
+        enum: '枚举',
+        file: '文件',
+        image: '图片',
+      }
+      return h(NTag, { type: 'info' }, { default: () => typeMap[row.field_type] || row.field_type })
+    },
+  },
+  {
+    title: '必填',
+    key: 'is_required',
+    render(row) {
+      return h(NSwitch, {
+        value: row.is_required,
+        disabled: true,
+        size: 'small',
+      })
+    },
+  },
+  {
+    title: '描述',
+    key: 'description',
   },
   {
     title: '操作',
@@ -132,7 +183,7 @@ const btnsColumns = [
           },
         ),
 
-        h(
+      /*   h(
           NButton,
           {
             size: 'small',
@@ -144,69 +195,7 @@ const btnsColumns = [
             default: () => '删除',
             icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),
           },
-        ),
-      ]
-    },
-  },
-]
-const apisColumns = [
-  { title: '名称', key: 'name' },
-  { title: '编码', key: 'code' },
-  { title: '路由', key: 'path' },
-  {
-    title: '状态',
-    key: 'enable',
-    render: row =>
-      h(
-        NSwitch,
-        {
-          size: 'small',
-          rubberBand: false,
-          value: row.enable,
-          loading: !!row.enableLoading,
-          onUpdateValue: () => handleApiEnable(row),
-        },
-        {
-          checked: () => '启用',
-          unchecked: () => '停用',
-        },
-      ),
-  },
-  {
-    title: '操作',
-    key: 'actions',
-    width: 320,
-    align: 'right',
-    fixed: 'right',
-    render(row) {
-      return [
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'primary',
-            style: 'margin-left: 12px;',
-            onClick: () => handleEditApi(row),
-          },
-          {
-            default: () => '编辑',
-            icon: () => h('i', { class: 'i-material-symbols:edit-outline text-14' }),
-          },
-        ),
-
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'error',
-            style: 'margin-left: 12px;',
-            onClick: () => handleDeleteApi(row.id),
-          },
-          {
-            default: () => '删除',
-            icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),
-          },
-        ),
+        ), */
       ]
     },
   },
@@ -222,19 +211,11 @@ watch(
   },
 )
 
-function handleAddBtn() {
+function handleAddField() {
   modalRef.value?.handleOpen({
     action: 'add',
     title: '新增按钮',
-    row: { type: 'BUTTON', parentId: currentUdo.value.id },
-    okText: '保存',
-  })
-}
-function handleAddApi() {
-  modalRef.value?.handleOpen({
-    action: 'add',
-    title: '新增按钮',
-    row: { type: 'API', parentId: currentUdo.value.id },
+    row: { object_id: currentUdo.value.id },
     okText: '保存',
   })
 }
@@ -246,15 +227,7 @@ function handleEditBtn(row) {
     okText: '保存',
   })
 }
-function handleEditApi(row) {
-  modalRef.value?.handleOpen({
-    action: 'edit',
-    title: `编辑按钮 - ${row.name}`,
-    row,
-    okText: '保存',
-  })
-}
-function handleDeleteBtn(id) {
+/* function handleDeleteBtn(id) {
   const d = $dialog.warning({
     content: '确定删除？',
     title: '提示',
@@ -263,7 +236,7 @@ function handleDeleteBtn(id) {
     async onPositiveClick() {
       try {
         d.loading = true
-        await api.deletePermission(id)
+        await api.getUdoFieldDel(id)
         $message.success('删除成功')
         $table.value.handleSearch()
         d.loading = false
@@ -274,56 +247,5 @@ function handleDeleteBtn(id) {
       }
     },
   })
-}
-function handleDeleteApi(id) {
-  const d = $dialog.warning({
-    content: '确定删除？',
-    title: '提示',
-    positiveText: '确定',
-    negativeText: '取消',
-    async onPositiveClick() {
-      try {
-        d.loading = true
-        await api.deletePermission(id)
-        $message.success('删除成功')
-        $tableApi.value.handleSearch()
-        d.loading = false
-      }
-      catch (error) {
-        console.error(error)
-        d.loading = false
-      }
-    },
-  })
-}
-async function handleEnable(item) {
-  try {
-    item.enableLoading = true
-    await api.savePermission(item.id, {
-      enable: !item.enable,
-    })
-    $message.success('操作成功')
-    $table.value?.handleSearch()
-    item.enableLoading = false
-  }
-  catch (error) {
-    console.error(error)
-    item.enableLoading = false
-  }
-}
-async function handleApiEnable(item) {
-  try {
-    item.enableLoading = true
-    await api.savePermission(item.id, {
-      enable: !item.enable,
-    })
-    $message.success('操作成功')
-    $tableApi.value?.handleSearch()
-    item.enableLoading = false
-  }
-  catch (error) {
-    console.error(error)
-    item.enableLoading = false
-  }
-}
+} */
 </script>

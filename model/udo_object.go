@@ -1,6 +1,7 @@
 package model
 
 import (
+	"strings"
 	"time"
 
 	"xorm.io/builder"
@@ -9,7 +10,7 @@ import (
 
 // UdoObject UDO Object Definition
 type UdoObject struct {
-	ID          int64     `json:"id" xorm:"id"`                   // Primary key
+	ID          int64     `json:"id" xorm:"id pk"`                // Primary key
 	Code        string    `json:"code" xorm:"code"`               // Unique object code within tenant
 	Name        string    `json:"name" xorm:"name"`               // Display name of UDO object
 	Description string    `json:"description" xorm:"description"` // Description of the object
@@ -85,4 +86,18 @@ func (m *UdoObjectModel) ObjectList(where map[string]string) ([]UdoObject, error
 	err := m.db.Where(wheres).Find(&list)
 
 	return list, err
+}
+
+// 删除
+func (m *UdoObjectModel) DeleteObject(id int64) error {
+	obj, err := m.GetUdoObjectByID(id)
+	if err != nil {
+		return err
+	}
+	_, err = m.db.ID(id).Delete(new(UdoObject))
+	if err != nil {
+		return err
+	}
+	m.db.DropTables("udo_data_" + strings.ToLower(obj.Code))
+	return nil
 }

@@ -249,17 +249,17 @@ async function onSave() {
     if (!modalForm.value.parentId)
       modalForm.value.parentId = null
     if (modalAction.value === 'add') {
-      if( modalForm.value.method!==""){
+      if (modalForm.value.method !== '') {
         modalForm.value.method = modalForm.value.method.join('|')
       }
       const res = await api.addPermission(modalForm.value)
       newFormData = res.data
     }
     else if (modalAction.value === 'edit') {
-      if( modalForm.value.method!==""){
+      if (modalForm.value.method !== '') {
         modalForm.value.method = modalForm.value.method.join('|')
       }
-      
+
       await api.savePermission(modalForm.value.id, modalForm.value)
     }
     okLoading.value = false

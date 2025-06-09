@@ -15,7 +15,7 @@ type udo struct {
 	*AdminRouter
 }
 
-func NewUdo(admin *AdminRouter) *udo {
+func NewUdoObject(admin *AdminRouter) *udo {
 	return &udo{AdminRouter: admin}
 }
 
@@ -111,5 +111,35 @@ func (c *udo) UpdateUdoObject(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, router.Response{
 		Code: 200,
 		Data: object,
+	})
+}
+
+// 删除
+func (c *udo) DeleteUdoObject(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == "" {
+		ctx.JSON(http.StatusOK, router.Response{
+			Code:    500,
+			Message: "id不能为空",
+		})
+		return
+	}
+	iid, err := strconv.Atoi(id)
+	if err != nil {
+		ctx.JSON(http.StatusOK, router.Response{
+			Code:    500,
+			Message: err.Error(),
+		})
+		return
+	}
+	err = c.model.UdoObjectModel.DeleteObject(int64(iid))
+	if err != nil {
+		ctx.JSON(http.StatusOK, router.Response{
+			Code:    500,
+			Message: err.Error(),
+		})
+	}
+	ctx.JSON(http.StatusOK, router.Response{
+		Code: 200,
 	})
 }

@@ -71,12 +71,20 @@ func (c *AdminRouter) RouteRegister(g *gin.Engine, r *gin.RouterGroup) {
 		configRouter.DELETE("/:id", config.Delete) */
 	}
 	// udo
-	udoObject := NewUdo(c)
+	udoObject := NewUdoObject(c)
 	{
 		udoRouter := admin.Group("/udo/object", c.middle.Jwt.AdminJWT())
 		udoRouter.GET("/list", udoObject.GetUdoObjectList)
 		udoRouter.POST("/", udoObject.CreateUdoObject)
 		udoRouter.PUT("/:id", udoObject.UpdateUdoObject)
-		// udoRouter.DELETE("/:id", udo.Delete)
+		udoRouter.DELETE("/:id", udoObject.DeleteUdoObject)
+	}
+	udoField := NewUdoField(c)
+	{
+		udoRouter := admin.Group("/udo/field", c.middle.Jwt.AdminJWT())
+		udoRouter.GET("/list", udoField.List)
+		udoRouter.POST("/", udoField.Created)
+		udoRouter.PUT("/", udoField.Update)
+		udoRouter.DELETE("/:id", udoField.Delete)
 	}
 }
