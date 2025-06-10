@@ -3,6 +3,7 @@ package service
 import (
 	"gocms/router"
 	"gocms/service/internal/admin"
+	"gocms/service/internal/install"
 	"gocms/service/internal/plugin"
 	"gocms/service/internal/test"
 	"gocms/service/internal/upload"
@@ -16,5 +17,6 @@ var ServiceModule = fx.Module("serviceModule",
 		router.AsRoute(plugin.NewPluginRouter),
 		router.AsRoute(upload.NewUploadRouter),
 		router.AsRoute(test.NewTestRouter),
+		router.AsRoute(install.NewInstallRouter),
 	),
 )

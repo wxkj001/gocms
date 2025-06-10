@@ -23,7 +23,7 @@ export const naiveThemeOverrides = {
 }
 
 export const basePermissions = [
-  {
+  /* {
     code: 'ExternalLink',
     name: '外链(可内嵌打开)',
     type: 'MENU',
@@ -73,5 +73,5 @@ export const basePermissions = [
         show: true,
       },
     ],
-  },
+  }, */
 ]

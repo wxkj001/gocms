@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/spf13/viper"
 	"go.uber.org/fx"
 	"xorm.io/xorm"
 )
@@ -26,18 +27,20 @@ type Models struct {
 	MediasModel     *MediasModel
 	UdoObjectModel  *UdoObjectModel
 	UdoFieldModel   *UdoFieldModel
+	UdoDataModel    *UdoDataModel
 }
 
-func NewModel(db *xorm.Engine) (ModelResult, error) {
+func NewModel(db *xorm.Engine, config *viper.Viper) (ModelResult, error) {
 	return ModelResult{Models: &Models{
 		Test:            NewMacVod(db),
 		PermissionModel: NewPermission(db),
-		UserModel:       NewUser(db),
+		UserModel:       NewUser(db, config),
 		RoleModel:       NewRole(db),
 		RuleModel:       NewRule(db),
 		SysConfigModel:  NewSysConfig(db),
 		MediasModel:     NewMedias(db),
 		UdoObjectModel:  NewUdoObject(db),
 		UdoFieldModel:   NewUdoField(db),
+		UdoDataModel:    NewUdoData(db),
 	}}, nil
 }

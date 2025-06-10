@@ -5,13 +5,13 @@ import (
 )
 
 type Profile struct {
-	ID       int64  `json:"id" xorm:"id autoincr"`
+	ID       int64  `json:"id" xorm:"id pk autoincr notnull unique index"`
 	Gender   int64  `json:"gender" xorm:"gender"`
 	Avatar   string `json:"avatar" xorm:"avatar"`
 	Address  string `json:"address" xorm:"address"`
 	Email    string `json:"email" xorm:"email"`
-	Userid   int64  `json:"userId" xorm:"userId index"`
-	Nickname string `json:"nickName" xorm:"nickName"`
+	Userid   int64  `json:"userId" xorm:"user_id index"`
+	Nickname string `json:"nickName" xorm:"nick_name"`
 }
 
 // TableName 表名称

@@ -9,7 +9,7 @@
 
 <template>
   <footer class="f-c-c text-14 text-gray-500">
-    <p>
+    <!-- <p>
       Copyright © 2023
       <a
         href="https://github.com/zclzone"
@@ -19,6 +19,6 @@
       >
         Ronnie Zhang(大脸怪)
       </a>
-    </p>
+    </p> -->
   </footer>
 </template>

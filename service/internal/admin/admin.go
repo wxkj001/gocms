@@ -75,6 +75,7 @@ func (c *AdminRouter) RouteRegister(g *gin.Engine, r *gin.RouterGroup) {
 	{
 		udoRouter := admin.Group("/udo/object", c.middle.Jwt.AdminJWT())
 		udoRouter.GET("/list", udoObject.GetUdoObjectList)
+
 		udoRouter.POST("/", udoObject.CreateUdoObject)
 		udoRouter.PUT("/:id", udoObject.UpdateUdoObject)
 		udoRouter.DELETE("/:id", udoObject.DeleteUdoObject)
@@ -83,8 +84,14 @@ func (c *AdminRouter) RouteRegister(g *gin.Engine, r *gin.RouterGroup) {
 	{
 		udoRouter := admin.Group("/udo/field", c.middle.Jwt.AdminJWT())
 		udoRouter.GET("/list", udoField.List)
+		udoRouter.GET("/code/:code", udoField.GetFieldListByCode)
 		udoRouter.POST("/", udoField.Created)
 		udoRouter.PUT("/", udoField.Update)
 		udoRouter.DELETE("/:id", udoField.Delete)
+	}
+	udoData := NewUdoInfo(c)
+	{
+		udoRouter := admin.Group("/udo/data", c.middle.Jwt.AdminJWT())
+		udoRouter.GET("/:code/list", udoData.List)
 	}
 }

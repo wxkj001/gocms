@@ -12,17 +12,17 @@ type Permission struct {
 	Name        string `json:"name" xorm:"name"`
 	Code        string `json:"code" xorm:"code"`
 	Type        string `json:"type" xorm:"type null "`
-	Parentid    int64  `json:"parentId" xorm:"parentId null "`
+	Parentid    int64  `json:"parentId" xorm:"parent_id null "`
 	Path        string `json:"path" xorm:"path null "`
 	Redirect    string `json:"redirect" xorm:"redirect null "`
 	Icon        string `json:"icon" xorm:"icon null "`
 	Component   string `json:"component" xorm:"component null "`
 	Layout      string `json:"layout" xorm:"layout null "`
-	Keepalive   bool   `json:"keep_alive" xorm:"keepAlive null tinyint(1)"`
+	Keepalive   bool   `json:"keep_alive" xorm:"keep_alive null"`
 	Method      string `json:"method" xorm:"method null "`
 	Description string `json:"description" xorm:"description null "`
-	Show        bool   `json:"show" xorm:"show notnull default(1) tinyint(1)"` // 是否展示在页面菜单
-	Enable      bool   `json:"enable" xorm:"enable notnull default(1) tinyint(1)"`
+	Show        bool   `json:"show" xorm:"show notnull"` // 是否展示在页面菜单
+	Enable      bool   `json:"enable" xorm:"enable notnull"`
 	Order       int64  `json:"order" xorm:"order"`
 }
 
@@ -66,7 +66,7 @@ func (p *PermissionModel) GetMenuTree() ([]*MenuNode, error) {
 // GetMenuTreeByType 根据类型获取菜单树
 func (p *PermissionModel) GetMenuTreeByType(menuType string, parentId int) ([]Permission, error) {
 	var permissions []Permission
-	err := p.db.Where("type = ? and parentId=?", strings.ToUpper(menuType), parentId).Find(&permissions)
+	err := p.db.Where("type = ? and parent_id=?", strings.ToUpper(menuType), parentId).Find(&permissions)
 	if err != nil {
 		return nil, err
 	}
@@ -130,6 +130,11 @@ func (p *PermissionModel) AddMenu(menu *Permission) (int64, error) {
 	return p.db.Insert(menu)
 }
 
+// AddMenu 添加菜单
+func (p *PermissionModel) AddMenus(menu []Permission) (int64, error) {
+	return p.db.Insert(&menu)
+}
+
 // UpdateMenu 更新菜单
 func (p *PermissionModel) UpdateMenu(menu *Permission) (int64, error) {
 	return p.db.ID(menu.ID).MustCols("enable").Update(menu)
@@ -174,7 +179,7 @@ func (p *PermissionModel) DeleteMenu(id int64) error {
 // getChildMenuIDs 递归获取所有子菜单ID
 func (p *PermissionModel) getChildMenuIDs(parentID int64) ([]int64, error) {
 	var permissions []Permission
-	err := p.db.Where("parentId = ?", parentID).Find(&permissions)
+	err := p.db.Where("parent_id = ?", parentID).Find(&permissions)
 	if err != nil {
 		return nil, err
 	}

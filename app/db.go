@@ -41,9 +41,22 @@ func NewDB(config *viper.Viper, log *zap.Logger, lc fx.Lifecycle) (*xorm.Engine,
 	tbMapper := names.NewPrefixMapper(names.SnakeMapper{}, config.GetString("db.tablePrefix"))
 	engine.SetTableMapper(tbMapper)
 	lc.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error { return engine.Sync2() },
-		OnStop:  func(ctx context.Context) error { return engine.Close() },
+		OnStart: func(ctx context.Context) error {
+			return engine.Sync2(
+				new(model.Medias),
+				new(model.Profile),
+				new(model.Role),
+				new(model.UdoField),
+				new(model.UdoObject),
+				new(model.User),
+				new(model.UserRolesRole),
+				new(model.SysConfig),
+				new(model.Permission),
+			)
+		},
+		OnStop: func(ctx context.Context) error { return engine.Close() },
 	})
+
 	return engine, nil
 }
 func newMysqlDB(config *viper.Viper, log *zap.Logger, lc fx.Lifecycle) (*xorm.Engine, error) {

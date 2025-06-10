@@ -7,7 +7,7 @@ import (
 )
 
 type Medias struct {
-	ID          int64     `json:"id" xorm:"id"`
+	ID          int64     `json:"id" xorm:"id pk autoincr notnull unique index"`
 	MediaUrl    string    `json:"media_url" xorm:"media_url"`
 	MediaName   string    `json:"media_name" xorm:"media_name"`
 	ContentType string    `json:"content_type" xorm:"content_type"`

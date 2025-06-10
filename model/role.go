@@ -5,10 +5,10 @@ import (
 )
 
 type Role struct {
-	ID     int64  `json:"id" xorm:"id autoincr pk"`
+	ID     int64  `json:"id" xorm:"id autoincr pk notnull unique index"`
 	Code   string `json:"code" xorm:"code"`
 	Name   string `json:"name" xorm:"name"`
-	Enable bool   `json:"enable" xorm:"enable default 1 notnull tinyint(1)"`
+	Enable bool   `json:"enable" xorm:"enable notnull"`
 }
 
 // TableName 表名称

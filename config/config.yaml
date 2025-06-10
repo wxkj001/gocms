@@ -66,6 +66,14 @@ db:
   user: root
   dbname: gocms
   password: wxkj001
+# db:
+#   driver: postgres
+#   tablePrefix:
+#   host: 192.168.13.39
+#   port: 5436
+#   user: postgres
+#   dbname: gocms
+#   password: wxkj001
 cache:
   driver: redis
   host: 127.0.0.1

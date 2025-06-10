@@ -8,7 +8,15 @@ export const basicRoutes = [
       layout: 'empty',
     },
   },
-
+  {
+    name: 'Install',
+    path: '/install',
+    component: () => import('@/views/install/index.vue'),
+    meta: {
+      title: '安装页',
+      layout: 'empty',
+    },
+  },
   {
     name: 'Home',
     path: '/',

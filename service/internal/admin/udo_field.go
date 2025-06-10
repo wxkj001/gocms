@@ -19,6 +19,33 @@ func NewUdoField(admin *AdminRouter) *udoField {
 	return &udoField{AdminRouter: admin}
 }
 
+// 通过code获取字段列表
+func (u *udoField) GetFieldListByCode(ctx *gin.Context) {
+	// 获取参数
+	objcode := ctx.Param("code")
+	obj, err := u.model.UdoObjectModel.GetUdoObjectByCode(objcode)
+	if err != nil {
+		ctx.JSON(http.StatusOK, router.Response{
+			Code:    500,
+			Message: err.Error(),
+		})
+		return
+	}
+	// 获取列表
+	list, err := u.model.UdoFieldModel.GetFieldListByObjectId(obj.ID)
+	if err != nil {
+		ctx.JSON(http.StatusOK, router.Response{
+			Code:    500,
+			Message: err.Error(),
+		})
+	}
+	// 返回数据
+	ctx.JSON(http.StatusOK, router.Response{
+		Code: 200,
+		Data: list,
+	})
+}
+
 // 列表
 func (u *udoField) List(ctx *gin.Context) {
 	// 获取参数

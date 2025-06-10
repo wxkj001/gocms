@@ -1,27 +1,30 @@
 package model
 
 import (
+	"gocms/utils"
 	"time"
 
+	"github.com/spf13/viper"
 	"xorm.io/xorm"
 )
 
 type User struct {
-	ID         int64     `json:"id" xorm:"id autoincr index pk"`
+	ID         int64     `json:"id" xorm:"id autoincr index pk notnull unique"`
 	Username   string    `json:"username" xorm:"username"`
 	Password   string    `json:"password" xorm:"password"`
-	Enable     bool      `json:"enable" xorm:"enable tinyint(1)"`
+	Enable     bool      `json:"enable" xorm:"enable"`
 	Createtime time.Time `json:"createTime" xorm:"created"`
 	Updatetime time.Time `json:"updateTime" xorm:"updated"`
 }
 
 // TableName 表名称
 func (*User) TableName() string {
-	return "user"
+	return "users"
 }
 
 type UserModel struct {
-	db *xorm.Engine
+	db     *xorm.Engine
+	config *viper.Viper
 	User
 }
 type UserGroup struct {
@@ -31,7 +34,7 @@ type UserGroup struct {
 }
 
 func (UserGroup) TableName() string {
-	return "user"
+	return "users"
 }
 
 type UserProfileGroup struct {
@@ -42,20 +45,24 @@ type UserProfileGroup struct {
 }
 
 func (UserProfileGroup) TableName() string {
-	return "user"
+	return "users"
 }
-func NewUser(db *xorm.Engine) *UserModel {
-	return &UserModel{db: db}
+func NewUser(db *xorm.Engine, config *viper.Viper) *UserModel {
+	return &UserModel{db: db, config: config}
 }
 
 // 获取用户列表
 func (m *UserModel) GetUserList(page, pageSize int) (int64, []UserProfileGroup, error) {
 	var users []UserProfileGroup
-	count, err := m.db.Join("LEFT", "profile", "user.id=profile.userId").Limit(pageSize, (page-1)*pageSize).FindAndCount(&users)
+	count, err := m.db.Join("LEFT", "profile", "users.id=profile.user_id").Limit(pageSize, (page-1)*pageSize).FindAndCount(&users)
+	rw := "role.id=rule.v1"
+	if m.config.GetString("db.driver") == "postgres" {
+		rw = "role.id=CAST(rule.v1 AS INTEGER)"
+	}
 	for k, v := range users {
 		roles := []RuleRoleGroup{}
-		err = m.db.Where("ptype =? and v0=?", "g", v.ID).
-			Join("INNER", "role", "role.id=rule.v1").
+		err = m.db.Where("ptype =? and v0=?", "g", utils.ToString(v.ID)).
+			Join("INNER", "role", rw).
 			Find(&roles)
 		if err != nil {
 			return 0, nil, err
@@ -69,7 +76,7 @@ func (m *UserModel) GetUserList(page, pageSize int) (int64, []UserProfileGroup, 
 func (m *UserModel) GetUserByUsername(username string) (*UserGroup, error) {
 	user := new(UserGroup)
 	has, err := m.db.Where("username = ?", username).
-		Join("LEFT", "profile", "user.id=profile.userId").
+		Join("LEFT", "profile", "users.id=profile.user_id").
 		Get(user)
 	if err != nil {
 		return nil, err
@@ -78,8 +85,12 @@ func (m *UserModel) GetUserByUsername(username string) (*UserGroup, error) {
 		return nil, nil
 	}
 	roles := []RuleRoleGroup{}
+	rw := "role.id=rule.v1"
+	if m.config.GetString("db.driver") == "postgres" {
+		rw = "role.id=CAST(rule.v1 AS INTEGER)"
+	}
 	err = m.db.Where("ptype =? and v0=?", "g", user.User.ID).
-		Join("INNER", "role", "role.id=rule.v1").
+		Join("INNER", "role", rw).
 		Find(&roles)
 	if err != nil {
 		return nil, err
@@ -120,7 +131,7 @@ func (m *UserModel) UpdateUser(id int64, user *UserGroup) error {
 	}
 	user.Profile.Userid = user.User.ID
 	user.Profile.Nickname = user.User.Username
-	_, err = session.Where("userId=?", id).Update(user.Profile)
+	_, err = session.Where("user_id=?", id).Update(user.Profile)
 	if err != nil {
 		return err
 	}

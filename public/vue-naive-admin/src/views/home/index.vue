@@ -27,7 +27,19 @@
           —— 查尔斯·史考伯
         </p>
       </n-card>
-      <n-card class="ml-12 w-70%" title="✨ 欢迎使用 Vue Naive Admin 2.0">
+    <!--   <n-card class="ml-12 w-70%" title="✨ 当前热搜榜">
+        <template #header-extra>
+          <div style="width: 200px;">
+            <n-select v-model:value="hotvalue" :options="hotoptions" @update:value="handleChange" />
+          </div>
+        </template>
+        <p class="opacity-60">
+          这是一款极简风格的后台管理模板，包含前后端解决方案，前端使用 Vite + Vue3 + Pinia +
+          Unocss，后端使用 Nestjs + TypeOrm +
+          MySql，简单易用，赏心悦目，历经十几次重构和细节打磨，诚意满满！！
+        </p>
+      </n-card> -->
+      <!-- <n-card class="ml-12 w-70%" title="✨ 欢迎使用 Vue Naive Admin 2.0">
         <template #header-extra>
           <a
             class="text-14 text-primary text-highlight hover:underline hover:opacity-80"
@@ -63,9 +75,9 @@
             代码仓库
           </n-button>
         </footer>
-      </n-card>
+      </n-card> -->
     </div>
-    <div class="mt-12 flex">
+    <!-- <div class="mt-12 flex">
       <n-card class="w-50%" title="💯 特性" segmented>
         <template #header-extra>
           <span class="opacity-90 text-highlight">👏 历经十几次重构和细节打磨</span>
@@ -154,7 +166,7 @@
       <div class="h-400">
         <VChart :option="trendOption" autoresize />
       </div>
-    </n-card>
+    </n-card> -->
   </AppPage>
 </template>
 
@@ -166,6 +178,7 @@ import * as echarts from 'echarts/core'
 import { UniversalTransition } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
 import VChart from 'vue-echarts'
+import api from './api'
 
 const userStore = useUserStore()
 
@@ -179,8 +192,20 @@ echarts.use([
   UniversalTransition,
   PieChart,
 ])
-
-const trendOption = {
+/* const hotoptions = [
+  {
+    label: '所有',
+    value: 'all',
+  },
+] */
+/* async function hotdata(t) {
+  const res = await api.hot(t)
+}
+hotdata(hotvalue.value)
+function handleChange(value) {
+  hotvalue.value = value
+} */
+/* const trendOption = {
   tooltip: {
     trigger: 'axis',
     axisPointer: {
@@ -236,9 +261,9 @@ const trendOption = {
       data: [40, 72, 110, 115, 121, 175, 180, 201, 260, 398, 423, 455],
     },
   ],
-}
+} */
 
-const skillOption = {
+/* const skillOption = {
   tooltip: {
     trigger: 'item',
     formatter({ name, value }) {
@@ -282,5 +307,5 @@ const skillOption = {
       ],
     },
   ],
-}
+} */
 </script>

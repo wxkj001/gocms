@@ -3,13 +3,13 @@ package model
 import "xorm.io/xorm"
 
 type UserRolesRole struct {
-	Userid int64 `json:"userId" xorm:"userId"`
-	Roleid int64 `json:"roleId" xorm:"roleId"`
+	Userid int64 `json:"userId" xorm:"user_id"`
+	Roleid int64 `json:"roleId" xorm:"role_id"`
 }
 
 // TableName 表名称
 func (*UserRolesRole) TableName() string {
-	return "user_roles_role"
+	return "users_roles_role"
 }
 
 type UserRolesRoleModel struct {

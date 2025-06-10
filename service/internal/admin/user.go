@@ -51,7 +51,7 @@ func (this *user) Login(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusOK, router.Response{
 			Code:    500,
-			Message: "账号不存在",
+			Message: "账号不存在 :" + err.Error(),
 		})
 		return
 	}
@@ -209,7 +209,7 @@ func (this *user) Add(ctx *gin.Context) {
 		return
 	}
 	for _, v := range userReq.RoleIds {
-		this.Casbin.AddGroupingPolicy(utils.ToString(userReq.User.ID), utils.ToString(v))
+		this.Casbin.AddGroupingPolicy(utils.ToString(userReq.User.ID), utils.ToString(v), "user")
 	}
 	this.Casbin.LoadPolicy()
 	this.Casbin.SavePolicy()

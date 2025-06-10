@@ -10,13 +10,13 @@ import (
 
 // UdoObject UDO Object Definition
 type UdoObject struct {
-	ID          int64     `json:"id" xorm:"id pk"`                // Primary key
-	Code        string    `json:"code" xorm:"code"`               // Unique object code within tenant
-	Name        string    `json:"name" xorm:"name"`               // Display name of UDO object
-	Description string    `json:"description" xorm:"description"` // Description of the object
-	Status      int8      `json:"status" xorm:"status"`           // Status: 1-Active, 0-Inactive
-	CreatedAt   time.Time `json:"created_at" xorm:"created"`      // Creation time
-	UpdatedAt   time.Time `json:"updated_at" xorm:"updated"`      // Update time
+	ID          int64     `json:"id" xorm:"id pk autoincr notnull unique index"` // Primary key
+	Code        string    `json:"code" xorm:"code"`                              // Unique object code within tenant
+	Name        string    `json:"name" xorm:"name"`                              // Display name of UDO object
+	Description string    `json:"description" xorm:"description"`                // Description of the object
+	Status      int8      `json:"status" xorm:"status"`                          // Status: 1-Active, 0-Inactive
+	CreatedAt   time.Time `json:"created_at" xorm:"created"`                     // Creation time
+	UpdatedAt   time.Time `json:"updated_at" xorm:"updated"`                     // Update time
 }
 
 // TableName 表名称
@@ -31,6 +31,19 @@ type UdoObjectModel struct {
 
 func NewUdoObject(db *xorm.Engine) *UdoObjectModel {
 	return &UdoObjectModel{db: db}
+}
+
+// 根据code查询对象
+func (m *UdoObjectModel) GetUdoObjectByCode(code string) (*UdoObject, error) {
+	udoObject := &UdoObject{}
+	has, err := m.db.Where("code = ?", code).Get(udoObject)
+	if err != nil {
+		return nil, err
+	}
+	if !has {
+		return nil, nil
+	}
+	return udoObject, nil
 }
 
 // 根据ID查询对象
