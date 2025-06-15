@@ -38,6 +38,8 @@ export function createPermissionGuard(router) {
       const routeComponents = import.meta.glob('@/views/**/*.vue')
       permissionStore.accessRoutes.forEach((route) => {
         route.component = routeComponents[route.component] || undefined
+        console.log(route);
+        
         !router.hasRoute(route.name) && router.addRoute(route)
       })
       return { ...to, replace: true }

@@ -33,6 +33,9 @@ type UdoDataModel struct {
 func NewUdoData(db *xorm.Engine) *UdoDataModel {
 	return &UdoDataModel{db: db}
 }
+func (m *UdoDataModel) TableName(code string) string {
+	return "udo_data_" + code
+}
 
 // 通过code获取表数据
 func (m *UdoDataModel) GetListByCode(code string, page, pageSize int, where map[string]string) (int64, []map[string]any, error) {
@@ -41,13 +44,40 @@ func (m *UdoDataModel) GetListByCode(code string, page, pageSize int, where map[
 	for k, v := range where {
 		wheres.And(builder.Like{k, v})
 	}
-	count, err := m.db.Table("udo_data_"+code).
+	count, err := m.db.Table(m.TableName(code)).
 		Where(wheres).
 		Limit(pageSize, (page-1)*pageSize).
-		FindAndCount(udoData)
+		FindAndCount(&udoData)
 	if err != nil {
 		return count, nil, err
 	}
 
 	return count, udoData, nil
+}
+
+// 通过map新增
+func (m *UdoDataModel) Created(code string, params map[string]interface{}) (int64, error) {
+	i, err := m.db.Table(m.TableName(code)).Insert(params)
+	if err != nil {
+		return 0, err
+	}
+	return i, nil
+}
+
+// 修改数据
+func (m *UdoDataModel) Update(code string, id int64, params map[string]interface{}) (int64, error) {
+	i, err := m.db.Table(m.TableName(code)).Where("id=?", id).Update(&params)
+	if err != nil {
+		return 0, err
+	}
+	return i, nil
+}
+
+// 删除
+func (m *UdoDataModel) Delete(code string, id int64) (int64, error) {
+	i, err := m.db.Table(m.TableName(code)).Where("id=?", id).Delete(nil)
+	if err != nil {
+		return 0, err
+	}
+	return i, nil
 }

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"gocms/utils"
 	"time"
 
@@ -82,7 +83,7 @@ func (m *UserModel) GetUserByUsername(username string) (*UserGroup, error) {
 		return nil, err
 	}
 	if !has {
-		return nil, nil
+		return nil, errors.New("no user")
 	}
 	roles := []RuleRoleGroup{}
 	rw := "role.id=rule.v1"

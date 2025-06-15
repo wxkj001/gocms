@@ -93,5 +93,8 @@ func (c *AdminRouter) RouteRegister(g *gin.Engine, r *gin.RouterGroup) {
 	{
 		udoRouter := admin.Group("/udo/data", c.middle.Jwt.AdminJWT())
 		udoRouter.GET("/:code/list", udoData.List)
+		udoRouter.POST("/:code", udoData.Created)
+		udoRouter.PUT("/:code/:id", udoData.Update)
+		udoRouter.DELETE("/:code/:id", udoData.Delete)
 	}
 }
