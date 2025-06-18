@@ -13,20 +13,28 @@ const props = defineProps({
     default: '',
   },
 })
-const isDark = useDark()
 const emit = defineEmits(['update:modelValue'])
+const isDark = useDark()
 const divRef = ref()
 let aiEditor = null
 onMounted(() => {
-  console.log(isDark.value);
   aiEditor = new AiEditor({
     element: divRef.value,
     placeholder: '',
     content: props.modelValue,
     theme: isDark.value ? 'dark' : 'light',
-    onChange:(aiEditor)=>{
-        emit('update:modelValue', aiEditor.getHtml())
-    }
+    onChange: (aiEditor) => {
+      emit('update:modelValue', aiEditor.getHtml())
+    },
+    ai: {
+      models: {
+        openai: {
+          endpoint: 'https://api.moonshot.cn',
+          model: 'moonshot-v1-8k',
+          apiKey: 'sk-alQ96zb******',
+        },
+      },
+    },
   })
 })
 watch(() => props.modelValue, (newValue) => {
@@ -35,7 +43,7 @@ watch(() => props.modelValue, (newValue) => {
   }
 })
 onUnmounted(() => {
-  aiEditor && aiEditor.destroy();
+  aiEditor && aiEditor.destroy()
 })
 defineExpose({
   aiEditor,
